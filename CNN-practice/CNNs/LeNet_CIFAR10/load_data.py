@@ -13,7 +13,8 @@ def read_data():
     batch_size = 10000
     train_data = np.empty((batch_size * 5, 3072))
     train_labels = np.zeros((batch_size * 5, 10))
-    CIFAR_DIR = 'E:\\subject\\torch-CNN\\CNN-practice\\data\\CIFAR10\\cifar-10-batches-py'
+
+    CIFAR_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../data/CIFAR10/cifar-10-batches-py")
     for i in range(5):
         filename = 'data_batch_%d' % (i + 1)
         filename = os.path.join(CIFAR_DIR, filename)

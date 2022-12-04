@@ -61,6 +61,11 @@ class Recorder:
         filename = os.path.join(self.save_path, 'best.pkl')
         return os.path.exists(filename)
 
+    def remove_best(self):
+        filename = os.path.join(self.save_path, 'best.pkl')
+        if os.path.exists(filename):
+            return os.remove(filename)
+
     def save_best(self, data):
         self.save(
             filename='best',

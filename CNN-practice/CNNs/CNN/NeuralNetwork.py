@@ -52,7 +52,10 @@ class NeuralNetwork(Sequential):
         self.test_log = []
         self.pred_log = []
         self.acc_log = []
-        if version == 0 or save_path is None:
+        if save_path is None:
+            return
+        if version == 0:
+            self.recorder.remove_best()
             return
         if version != 'best':
             self.optimizer = self.recorder.load_version(version)

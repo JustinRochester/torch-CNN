@@ -2,7 +2,7 @@ import os.path
 
 from ..CNN.GPU_np import np
 from .load_data import read_data
-from ..CNN.NeuralNetwork import NeuralNetwork
+from ..CNN.NeuralNetwork import *
 
 
 def learning_rate_function(lr, i, tot):
@@ -10,40 +10,53 @@ def learning_rate_function(lr, i, tot):
 
 
 class LeNet:
-    def __init__(self, learning_rate=1e-3):
+    def __init__(self, learning_rate=1e-3, class_num=10):
         self.c, self.h, self.w = 3, 32, 32
         self.nn = NeuralNetwork((self.c, self.h, self.w),
+                                class_num=class_num,
                                 learning_rate=learning_rate,
                                 loss_name='cross_entropy_softmax',
                                 optimizer_name='Adam',
                                 alpha=0.00,
                                 learning_rate_function=learning_rate_function)
-        self.nn.add_BN()
 
-        self.nn.add_conv((5, 5), 32, padding=2)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_max_pool((2, 2))
+        self.nn.add(
+            BatchNormalization((3, 32, 32)),
 
-        self.nn.add_conv((5, 5), 16)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_max_pool((2, 2))
-        self.nn.add_flatten()
-        self.nn.add_BN()
-        self.nn.add_dropout()
+            Sequential(
+                Conv2D(input_size=(3, 32, 32), filter_size=(5, 5), filter_num=32, padding=2),
+                BatchNormalization((32, 32, 32)),
+                Activation(input_size=(32, 32, 32), activation_name='relu'),
+                MaxPool2D(input_size=(32, 32, 32), pooling_size=(2, 2))
+            ),
 
-        self.nn.add_fc((120, 1))
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_dropout()
+            Sequential(
+                Conv2D(input_size=(32, 16, 16), filter_size=(5, 5), filter_num=16),
+                BatchNormalization((16, 12, 12)),
+                Activation(input_size=(16, 12, 12), activation_name='relu'),
+                MaxPool2D(input_size=(16, 12, 12), pooling_size=(2, 2))
+            ),
 
-        self.nn.add_fc((84, 1))
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_dropout()
+            Flatten((16, 6, 6)),
+            Dropout((6 * 6 * 16, 1)),
 
-        self.nn.add_fc((10, 1))
+            Sequential(
+                Linear(input_size=6 * 6 * 16, output_size=120),
+                BatchNormalization((120, 1)),
+                Activation(input_size=(120, 1), activation_name='relu'),
+                Dropout((120, 1))
+            ),
+
+            Sequential(
+                Linear(input_size=120, output_size=84),
+                BatchNormalization((84, 1)),
+                Activation(input_size=(84, 1), activation_name='relu'),
+                Dropout((84, 1))
+            ),
+
+            Linear(input_size=84, output_size=class_num)
+        )
+        self.nn.build_model(self.nn.optimizer)
 
     def test_accuracy(self, version=10, batch_size=1024):
         save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "weight")
@@ -52,7 +65,7 @@ class LeNet:
         self.nn.load(version, save_path)
         return self.nn.test_accuracy(test_images, test_labels, batch_size)
 
-    def work(self, epoch=10, batch_size=1024, version=0):
+    def work(self, epoch=10, batch_size=1024, run_size=32, version=0):
         save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "weight")
         train_images, train_labels, test_images, test_labels = read_data()
         train_images = train_images / 255.0
@@ -64,6 +77,7 @@ class LeNet:
             label_array=train_labels,
             epoch_number=epoch,
             batch_size=batch_size,
+            run_size=run_size,
             test_image_array=test_images,
             test_label_array=test_labels,
             version=version,
