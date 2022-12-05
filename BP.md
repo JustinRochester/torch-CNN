@@ -113,13 +113,56 @@ $\displaystyle {\partial L\over \partial \boldsymbol o}=(\boldsymbol 1^T\cdot \b
 
 ## Batch Normalization
 
-$\displaystyle \hat {\bold X}={\bold X-\bold M\over \sqrt {\bold \Sigma}}$
+$\displaystyle \boldsymbol \mu={1\over m}\sum_{i=1}^m\boldsymbol x_i$
 
-$\bold Y=\bold {\hat X}\odot \bold\Gamma + \bold B$
+$\displaystyle \boldsymbol \sigma^2={1\over m}\sum_{i=1}^m(\boldsymbol x_i-\boldsymbol \mu)^2$
 
-$\displaystyle {\partial \bold Y\over \partial \bold \Gamma}=\hat{\bold X}$
+$\displaystyle \hat{\boldsymbol x}_i={\boldsymbol x_i-\boldsymbol \mu\over \sqrt{\boldsymbol \sigma^2+\epsilon}}$
 
-$\displaystyle {\partial \bold Y\over \partial \bold B}=\bold 1$
+$\boldsymbol y_i=\hat{\boldsymbol x}_i\odot \boldsymbol \gamma+\boldsymbol \beta$
 
-$\displaystyle {\partial \bold Y\over \partial \hat{\bold X}}=\bold \Gamma$
+$$
+&{\partial C\over \partial \boldsymbol \gamma}
+\\=&\sum_i\boldsymbol e_i({\partial C\over \partial \boldsymbol \gamma})_i
+\\=&\sum_i\boldsymbol e_i\sum_j({\partial C\over \partial \boldsymbol y_j})_i({\partial \boldsymbol y_j\over \partial \boldsymbol \gamma})_i
+\\=&\sum_j{\partial C\over \partial \boldsymbol y_j}\odot\hat{\boldsymbol x}_j
+$$
+
+$$
+&{\partial C\over \partial \boldsymbol \beta}
+\\=&\sum_i\boldsymbol e_i({\partial C\over \partial \boldsymbol \beta})_i
+\\=&\sum_i\boldsymbol e_i\sum_j({\partial C\over \partial \boldsymbol y_j})_i({\partial \boldsymbol y_j\over \partial \boldsymbol \beta})_i
+\\=&\sum_j{\partial C\over \partial \boldsymbol y_j}
+$$
+
+$$
+&{\partial C\over \partial \hat {\boldsymbol x}_p}
+\\=&\sum_i\boldsymbol e_i({\partial C\over \partial \hat {\boldsymbol x}_p})_i
+\\=&\sum_i\boldsymbol e_i\sum_j({\partial C\over \partial \boldsymbol y_j})_i({\partial \boldsymbol y_j\over \partial \hat {\boldsymbol x}_p})_i
+\\=&{\partial C\over \partial \boldsymbol y_p}\odot\boldsymbol \gamma
+$$
+
+$$
+&{\partial C\over \partial \boldsymbol \sigma^2}
+\\=&\sum_p\boldsymbol e_p({\partial C\over \partial \boldsymbol \sigma^2})_p
+\\=&\sum_p\boldsymbol e_p\sum_i({\partial C\over \partial \hat{\boldsymbol x}_i})_p\cdot ({\partial \hat{\boldsymbol x}_i\over \partial \sqrt{\boldsymbol \sigma^2+\epsilon}})_p\cdot ({\partial \sqrt{\boldsymbol \sigma^2+\epsilon}\over \partial \boldsymbol \sigma^2})_p
+\\=&\sum_p\boldsymbol e_p\sum_i({\partial C\over \partial \hat{\boldsymbol x}_i})_p\cdot (\boldsymbol x_i-\boldsymbol \mu)_p\cdot ({-1\over \boldsymbol \sigma^2+\epsilon})_p\cdot({1\over 2\sqrt{\boldsymbol \sigma^2+\epsilon}})_p
+\\=&-{1\over 2(\boldsymbol \sigma^2+\epsilon)}\odot \sum_i{\partial C\over \partial \hat{\boldsymbol x_i}}\odot \hat{\boldsymbol x}_i
+$$
+
+$$
+&{\partial C\over \partial \boldsymbol \mu}
+\\=&\sum_p\boldsymbol e_p({\partial C\over \partial \boldsymbol \mu})_p
+\\=&\sum_p\boldsymbol e_p\sum_i({\partial C\over \partial \hat{\boldsymbol x}_i})_p\cdot ({\partial \hat{\boldsymbol x}_i\over \partial \boldsymbol \mu})_p+\sum_p\boldsymbol e_p({\partial C\over \partial \boldsymbol \sigma^2})_p\cdot ({\partial \boldsymbol \sigma^2\over \partial \boldsymbol \mu})_p
+\\=&-{1\over \sqrt{\boldsymbol \sigma^2+\epsilon}}\odot\sum_i{\partial C\over \partial \hat{\boldsymbol x}_i}+{\partial C\over \partial \boldsymbol \sigma^2}\odot {-2\over m}\sum_i(\boldsymbol x_i-\boldsymbol \mu)
+\\=&-{1\over \sqrt{\boldsymbol \sigma^2+\epsilon}}\odot\sum_i{\partial C\over \partial \hat{\boldsymbol x}_i}-{2\sqrt{\boldsymbol \sigma^2+\epsilon}\over m}\odot {\partial C\over \partial \boldsymbol \sigma^2}\odot \sum_i\hat{\boldsymbol x}_i
+$$
+
+$$
+&{\partial C\over \partial \boldsymbol x_i}
+\\=&\sum_p \boldsymbol e_p\cdot ({\partial C\over \partial \boldsymbol x_i})_p
+\\=&\sum_p\boldsymbol e_p\cdot [({\partial C\over \partial \hat{\boldsymbol x}_i})_p\cdot ({\partial \hat{\boldsymbol x}_i\over \partial \boldsymbol x_i})_p+({\partial C\over \partial \boldsymbol \mu})_p\cdot ({\partial \boldsymbol \mu\over \partial \boldsymbol x_i})_p+({\partial C\over \partial \boldsymbol \sigma^2})_p\cdot ({\partial  \boldsymbol \sigma^2\over \partial \boldsymbol x_i})_p]
+\\=&{\partial C\over \partial \hat{\boldsymbol x}_i}\odot {1\over \sqrt{\boldsymbol \sigma^2+\epsilon}}+{\partial C\over \partial \boldsymbol \mu}\cdot {1\over m}+{\partial C\over \partial \boldsymbol \sigma^2}\odot {2\over m}(\boldsymbol x_i-\boldsymbol \mu)
+\\=&{\partial C\over \partial \hat{\boldsymbol x}_i}\odot {1\over \sqrt{\boldsymbol \sigma^2+\epsilon}}+{\partial C\over \partial \boldsymbol \mu}\cdot {1\over m}+{2\over m}\cdot {\partial C\over \partial \boldsymbol \sigma^2}\odot \hat{\boldsymbol x}_i\odot \sqrt{\boldsymbol \sigma^2+\epsilon}
+$$
 

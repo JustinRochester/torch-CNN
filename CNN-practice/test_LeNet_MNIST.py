@@ -7,7 +7,7 @@ if __name__ == '__main__':
     )
     nn.work(
         epoch=10,
-        batch_size=4096,
+        batch_size=1024,
         run_size=1024,
-        version=8
+        version=0
     )
