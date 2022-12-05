@@ -56,7 +56,7 @@ class LeNet:
 
             Linear(input_size=84, output_size=class_num)
         )
-        self.nn.build_model(self.nn.optimizer)
+        self.nn.build_model(self.nn.optimizer_dict)
 
     def test_accuracy(self, version=10, batch_size=1024):
         save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "weight")
