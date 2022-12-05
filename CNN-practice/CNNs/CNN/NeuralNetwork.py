@@ -183,14 +183,14 @@ class NeuralNetwork(Sequential):
         if version == 0:
             self.test_log_record(version, epoch_number, test_image_array, test_label_array, run_size)
         for i in range(version + 1, epoch_number + 1):
-            start_time = time.clock()
+            start_time = time.perf_counter()
             self.train_epoch(image_array, label_array, batch_size, run_size, i, epoch_number)
-            end_time = time.clock()
+            end_time = time.perf_counter()
             self.learning_rate = self.learning_rate_function(self.learning_rate, i, epoch_number)
 
             message = "finished training in [%d/%d] epoch, cost time = %f second(s)"
             message = message % (i, epoch_number, end_time - start_time)
             print(message)
             self.save(version=i, save_path=save_path)
-            self.test_log_record(i, epoch_number, test_image_array, test_label_array, batch_size)
+            self.test_log_record(i, epoch_number, test_image_array, test_label_array, run_size)
         show_log(self.train_log, self.test_log, self.pred_log, self.acc_log)
