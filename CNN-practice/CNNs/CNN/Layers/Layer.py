@@ -21,16 +21,22 @@ class Layer:
     def backward(self, output_grad):
         pass
 
-    def build_model(self, optimizer_dict):
-        for parameter, optimizer_name in self.parameter_dict.items():
-            optimizer_dict[optimizer_name].append(
-                                                    getattr(self, parameter)
-                                                 )
+    def zero_grad(self):
+        for name in self.parameter_dict.keys():
+            parameter = getattr(self, name)
+            parameter.grad = np.zeros_like(parameter.grad)
 
-    def load_model(self, optimizer_iter_dict):
-        for parameter, optimizer_name in self.parameter_dict.items():
-            setattr(
-                        self,
-                        parameter,
-                        next(optimizer_iter_dict[optimizer_name])
-                    )
+    def multi_grad(self, multiply=1):
+        for name in self.parameter_dict.keys():
+            parameter = getattr(self, name)
+            parameter.grad *= multiply
+
+    def build_model(self, optimizer):
+        for name, value in self.parameter_dict.items():
+            optimizer.append(value)
+
+    def load_model(self, optimizer_iter):
+        for name in self.parameter_dict.keys():
+            value = next(optimizer_iter)
+            setattr(self, name, value)
+            self.parameter_dict[name] = value

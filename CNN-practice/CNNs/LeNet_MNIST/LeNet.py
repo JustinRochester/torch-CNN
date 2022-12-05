@@ -16,6 +16,7 @@ class LeNet:
                                 class_num=class_num,
                                 learning_rate=learning_rate,
                                 loss_name='cross_entropy_softmax',
+                                optimizer_name='Adam',
                                 alpha=0.00,
                                 learning_rate_function=learning_rate_function)
         self.nn.add(
@@ -54,7 +55,7 @@ class LeNet:
 
             Linear(input_size=84, output_size=class_num)
         )
-        self.nn.build_model(self.nn.optimizer_dict)
+        self.nn.build_model(self.nn.optimizer)
 
     def work(self, epoch=10, batch_size=1024, run_size=32, version=0):
         save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "weight")

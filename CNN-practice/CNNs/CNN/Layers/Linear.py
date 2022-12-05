@@ -4,11 +4,7 @@ from ..Base.NeuralVariable import NeuralVariable
 
 
 class Linear(Layer):
-    def __init__(self,
-                 input_size=10,
-                 output_size=10,
-                 w_optimizer='Adam',
-                 bias_optimizer='Adam',
+    def __init__(self, input_size=10, output_size=10
                  ):
         super().__init__()
         self.input = None
@@ -25,8 +21,8 @@ class Linear(Layer):
                                    )
 
         self.parameter_dict = {
-            "w": w_optimizer,
-            "bias": bias_optimizer,
+            "w": self.w,
+            "bias": self.bias,
         }
 
     def predict_forward(self, input):

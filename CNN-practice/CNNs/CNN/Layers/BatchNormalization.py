@@ -4,33 +4,43 @@ from ..Base.NeuralVariable import NeuralVariable
 
 
 class BatchNormalization(Layer):
-    def __init__(self,
-                 input_size=(1,),
-                 gamma_optimizer='Adam',
-                 beta_optimizer='Adam',
-                 mu_optimizer='Memory',
-                 sigma_optimizer='Memory',
-                 ):
+    def __init__(self, input_size=(1,), rho=0.9):
         super().__init__()
         self.input_size = input_size
         self.output_size = input_size
         self.channel_size = input_size[0]
         self.parameter_shape = (1, self.channel_size) + (1,) * len(input_size[1:])
         self.input_norm = None
+        self.rho = rho
 
-        self.mu = NeuralVariable(shape=self.parameter_shape, mu=0, std=0)
-        self.sigma = NeuralVariable(shape=self.parameter_shape, mu=1, std=0)
-        self.gamma = NeuralVariable(shape=self.parameter_shape, mu=1, std=0)
-        self.beta = NeuralVariable(shape=self.parameter_shape, mu=0, std=0)
+        self.count_batches = 0
+
+        self.mu = np.zeros(self.parameter_shape)
+        self.mu_update = np.zeros(self.parameter_shape)
+
+        self.sigma = np.ones(self.parameter_shape)
+        self.sigma_update = np.zeros(self.parameter_shape)
+
+        self.gamma = NeuralVariable(self.parameter_shape)
+        self.gamma.value = np.ones(self.parameter_shape)
+        self.beta = NeuralVariable(self.parameter_shape)
+        self.beta.value = np.zeros(self.parameter_shape)
         self.parameter_dict = {
-            "gamma": gamma_optimizer,
-            "beta": beta_optimizer,
-            "mu": mu_optimizer,
-            "sigma": sigma_optimizer
+            "gamma": self.gamma,
+            "beta": self.beta,
         }
 
+    def update_statistics(self):
+        if self.count_batches == 0:
+            return
+        self.mu = self.mu * (1 - self.rho) + self.mu_update / self.count_batches * self.rho
+        self.sigma = self.sigma * (1 - self.rho) + self.sigma_update / self.count_batches * self.rho
+        self.mu_update = np.zeros_like(self.mu_update)
+        self.sigma_update = np.zeros_like(self.sigma_update)
+        self.count_batches = 0
+
     def predict_forward(self, input):
-        input = (input - self.mu.value) / np.sqrt(self.sigma.value + 1e-9)
+        input = (input - self.mu) / np.sqrt(self.sigma + 1e-9)
         output = input * self.gamma.value + self.beta.value
         return output
 
@@ -41,16 +51,17 @@ class BatchNormalization(Layer):
         sigma = np.average(np.square(input - mu).reshape((n, self.channel_size, -1)), axis=2)
         sigma = np.average(sigma, axis=0).reshape(self.sigma.shape)
 
-        self.mu.grad += mu * n
-        self.sigma.grad += sigma * n
+        self.count_batches += n
+        self.mu_update += mu * n
+        self.sigma_update += sigma * n
 
-        self.input_norm = (input - self.mu.value) / np.sqrt(self.sigma.value + 1e-9)
+        self.input_norm = (input - self.mu) / np.sqrt(self.sigma + 1e-9)
         output = self.input_norm * self.gamma.value + self.beta.value
         return output
 
     def backward(self, output_grad):
         n = output_grad.shape[0]
-        input_grad = output_grad * self.gamma.value / np.sqrt(self.sigma.value + 1e-9)
+        input_grad = output_grad * self.gamma.value / np.sqrt(self.sigma + 1e-9)
 
         self.input_norm = self.input_norm.reshape((n, self.channel_size, -1))
         output_grad = output_grad.reshape((n, self.channel_size, -1))

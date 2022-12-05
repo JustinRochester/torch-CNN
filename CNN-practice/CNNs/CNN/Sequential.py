@@ -30,10 +30,23 @@ class Sequential:
             x = layer.backward(x)
         return x
 
-    def build_model(self, optimizer_dict):
+    def update_statistics(self):
         for layer in self.layers:
-            layer.build_model(optimizer_dict)
+            if isinstance(layer, BatchNormalization) or isinstance(layer, Sequential):
+                layer.update_statistics()
 
-    def load_model(self, optimizer_iter_dict):
+    def zero_grad(self):
         for layer in self.layers:
-            layer.load_model(optimizer_iter_dict)
+            layer.zero_grad()
+
+    def multi_grad(self, multiply=1):
+        for layer in self.layers:
+            layer.multi_grad(multiply=multiply)
+
+    def build_model(self, optimizer):
+        for layer in self.layers:
+            layer.build_model(optimizer)
+
+    def load_model(self, optimizer_iter):
+        for layer in self.layers:
+            layer.load_model(optimizer_iter)

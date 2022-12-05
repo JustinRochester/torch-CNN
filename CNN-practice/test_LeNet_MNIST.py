@@ -9,5 +9,5 @@ if __name__ == '__main__':
         epoch=10,
         batch_size=4096,
         run_size=1024,
-        version=0
+        version=8
     )
