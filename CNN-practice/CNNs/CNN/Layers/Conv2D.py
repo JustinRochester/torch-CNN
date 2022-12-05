@@ -7,7 +7,9 @@ from ..Base.img2col import img2col, filter2row, bias2row, col2img, row2filter, r
 class Conv2D(Layer):
     def __init__(self, input_size=(3, 32, 32), filter_size=(3, 3), filter_num=10,
                  stride=1,
-                 padding=0
+                 padding=0,
+                 filter_array_optimizer='Adam',
+                 filter_bias_optimizer='Adam',
                  ):
         super().__init__()
         self.input_size = input_size
@@ -31,8 +33,8 @@ class Conv2D(Layer):
         self.input_col = None
 
         self.parameter_dict = {
-            "filter_array": self.filter_array,
-            "filter_bias": self.filter_bias,
+            "filter_array": filter_array_optimizer,
+            "filter_bias": filter_bias_optimizer,
         }
 
     def predict_forward(self, input):

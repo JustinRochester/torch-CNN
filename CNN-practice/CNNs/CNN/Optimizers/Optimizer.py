@@ -8,9 +8,17 @@ class Optimizer:
         self.alpha_list = []
         self.load_list = []
 
-    @abc.abstractmethod
+    def zero_grad(self):
+        for i in range(len(self.parameter_list)):
+            self.parameter_list[i].grad = np.zeros_like(self.parameter_list[i].grad)
+
+    def multi_grad(self, multiply=1):
+        for i in range(len(self.parameter_list)):
+            self.parameter_list[i].grad *= multiply
+
     def append(self, parameter, alpha=0):
-        pass
+        self.parameter_list.append(parameter)
+        self.alpha_list.append(alpha)
 
     def regular_loss(self):
         loss_value = 0

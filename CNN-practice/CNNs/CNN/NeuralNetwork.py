@@ -16,7 +16,6 @@ class NeuralNetwork(Sequential):
                  class_num=2,
                  learning_rate=1e-2,
                  loss_name='MSE',
-                 optimizer_name='Adam',
                  alpha=0.1,
                  learning_rate_function=(lambda lr, i, tot: lr)
                  ):
@@ -26,7 +25,6 @@ class NeuralNetwork(Sequential):
         self.output_size = (class_num, 1)
         self.learning_rate = learning_rate
         self.loss_function = loss_dict[loss_name]
-        self.optimizer = None
         self.alpha = alpha
         self.learning_rate_function = learning_rate_function
 
@@ -34,17 +32,17 @@ class NeuralNetwork(Sequential):
         self.test_log = []
         self.pred_log = []
         self.acc_log = []
-        self.optimizer = optimizer_dict[optimizer_name]()
+        self.optimizer_dict = {name: optimizer_dict[name]() for name in optimizer_dict.keys()}
         self.recorder = Recorder()
 
     def save(self, version, save_path):
         self.recorder.set_path(save_path)
-        self.recorder.save_version(version, self.optimizer)
+        self.recorder.save_version(version, self.optimizer_dict)
         self.recorder.save_log(version, self.train_log, self.test_log, self.pred_log, self.acc_log)
 
         if max(self.acc_log) != self.acc_log[-1] and self.recorder.exists_best():
             return
-        self.recorder.save_best(self.optimizer)
+        self.recorder.save_best(self.optimizer_dict)
 
     def load(self, version, save_path):
         self.recorder.set_path(save_path)
@@ -58,15 +56,34 @@ class NeuralNetwork(Sequential):
             self.recorder.remove_best()
             return
         if version != 'best':
-            self.optimizer = self.recorder.load_version(version)
+            self.optimizer_dict = self.recorder.load_version(version)
             self.train_log, self.test_log, self.pred_log, self.acc_log = self.recorder.load_log(version)
         else:
-            self.optimizer = self.recorder.load_best()
+            self.optimizer_dict = self.recorder.load_best()
 
-        self.optimizer.load_data()
-        optimizer_iter = self.optimizer.get_iter()
+        for optimizer_name in self.optimizer_dict.keys():
+            self.optimizer_dict[optimizer_name].load_data()
+        optimizer_iter_list = {
+                            optimizer_name: self.optimizer_dict[optimizer_name].get_iter()
+                            for optimizer_name in optimizer_dict.keys()
+                          }
         for layer in self.layers:
-            layer.load_model(optimizer_iter)
+            layer.load_model(optimizer_iter_list)
+
+    def regular_loss(self):
+        return sum([optimizer.regular_loss() for optimizer in self.optimizer_dict.values()])
+
+    def zero_grad(self):
+        for optimizer in self.optimizer_dict.values():
+            optimizer.zero_grad()
+
+    def multi_grad(self, multiply=1):
+        for optimizer in self.optimizer_dict.values():
+            optimizer.multi_grad(multiply)
+
+    def optimizer_update(self):
+        for optimizer in self.optimizer_dict.values():
+            optimizer.update(self.learning_rate)
 
     def predict(self, test_images, batch_size=128, test_pred_need=False, test_loss_need=False, test_labels=None):
         n = test_images.shape[0]
@@ -88,7 +105,7 @@ class NeuralNetwork(Sequential):
         loss_array, _ = self.loss_function.loss(
             label=test_labels,
             output=output_array,
-            regular_loss=self.optimizer.regular_loss()
+            regular_loss=self.regular_loss()
         )
         loss_array = loss_array.reshape(n)
         if test_pred_need is False:
@@ -148,12 +165,12 @@ class NeuralNetwork(Sequential):
                 loss_value, output_grad = self.loss_function.loss(
                     label=label_array[select_index[l_run: r_run]],
                     output=output,
-                    regular_loss=self.optimizer.regular_loss()
+                    regular_loss=self.regular_loss()
                 )
                 self.backward(output_grad)
                 loss_sum += np.sum(loss_value)
             self.multi_grad(multiply=1/(r_batch-l_batch+1))
-            self.optimizer.update(self.learning_rate)
+            self.optimizer_update()
             self.train_log_record(epoch_id, epoch_number, r_batch, n, float(loss_sum) / (r_batch - l_batch + 1))
 
     def train(self, image_array, label_array, epoch_number=50,
