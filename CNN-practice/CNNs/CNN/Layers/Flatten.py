@@ -8,12 +8,12 @@ class Flatten(Layer):
         self.input_size = input_size
         self.output_size = (input_size[0] * input_size[1] * input_size[2], 1)
 
-    def predict_forward(self, input):
-        n = input.shape[0]
-        return input.reshape((n, -1, 1))
+    def predict_forward(self, input_value):
+        n = input_value.shape[0]
+        return input_value.reshape((n, -1, 1))
 
-    def forward(self, input):
-        return self.predict_forward(input)
+    def forward(self, input_value):
+        return self.predict_forward(input_value)
 
     def backward(self, output_grad):
         n = output_grad.shape[0]

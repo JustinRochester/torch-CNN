@@ -13,11 +13,11 @@ class Linear(Layer):
 
         self.w = NeuralVariable(
                                     shape=(output_size, input_size),
-                                    std=np.sqrt(2 / input_size)
+                                    initial_std=np.sqrt(2 / input_size)
                                 )
         self.bias = NeuralVariable(
                                        shape=(output_size, 1),
-                                       std=np.sqrt(2 / input_size)
+                                       initial_std=np.sqrt(2 / input_size)
                                    )
 
         self.parameter_dict = {
@@ -25,15 +25,15 @@ class Linear(Layer):
             "bias": self.bias,
         }
 
-    def predict_forward(self, input):
-        n = input.shape[0]
-        output = np.dot(self.w.value, input.reshape((n, -1)).T)
+    def predict_forward(self, input_value):
+        n = input_value.shape[0]
+        output = np.dot(self.w.value, input_value.reshape((n, -1)).T)
         output = (output + self.bias.value).T.reshape((n, -1, 1))
         return output
 
-    def forward(self, input):
-        self.input = input
-        return self.predict_forward(input)
+    def forward(self, input_value):
+        self.input = input_value
+        return self.predict_forward(input_value)
 
     def backward(self, output_grad):
         n = output_grad.shape[0]

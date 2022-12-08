@@ -1,6 +1,7 @@
 import os
 import pickle
 import re
+from .GPU_np import np
 
 
 class Recorder:
@@ -73,9 +74,12 @@ class Recorder:
         )
 
     def load_version(self, version):
-        return self.load(
+        data = self.load(
             filename='weight%d' % version
         )
+        for i in range(len(data)):
+            data[i] = np.asarray(data[i].tolist())
+        return data
 
     def load_log(self, version):
         return self.load(
@@ -83,6 +87,9 @@ class Recorder:
         )
 
     def load_best(self):
-        return self.load(
+        data = self.load(
             filename='best'
         )
+        for i in range(len(data)):
+            data[i] = np.asarray(data[i].tolist())
+        return data

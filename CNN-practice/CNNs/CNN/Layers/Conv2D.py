@@ -22,11 +22,11 @@ class Conv2D(Layer):
 
         self.filter_array = NeuralVariable(
                                               shape=self.filter_size,
-                                              std=np.sqrt(2 / (input_size[0] * filter_size[0] * filter_size[1]))
+                                              initial_std=np.sqrt(2 / (input_size[0] * filter_size[0] * filter_size[1]))
                                            )
         self.filter_bias = NeuralVariable(
                                               shape=(filter_num, 1),
-                                              std=np.sqrt(2 / (input_size[0] * filter_size[0] * filter_size[1]))
+                                              initial_std=np.sqrt(2 / (input_size[0] * filter_size[0] * filter_size[1]))
                                            )
         self.input_col = None
 
@@ -35,17 +35,17 @@ class Conv2D(Layer):
             "filter_bias": self.filter_bias,
         }
 
-    def predict_forward(self, input):
-        n = input.shape[0]
-        input = img2col(input, self.filter_size[2:], self.stride, self.padding)
-        output = np.dot(input, filter2row(self.filter_array.value))
+    def predict_forward(self, input_value):
+        n = input_value.shape[0]
+        input_value = img2col(input_value, self.filter_size[2:], self.stride, self.padding)
+        output = np.dot(input_value, filter2row(self.filter_array.value))
         output += bias2row(self.filter_bias.value)
         output = output.reshape((n,) + self.output_size[1:] + (-1,)).transpose(0, 3, 1, 2)
         return output
 
-    def forward(self, input):
-        n = input.shape[0]
-        self.input_col = img2col(input, self.filter_size[2:], self.stride, self.padding)
+    def forward(self, input_value):
+        n = input_value.shape[0]
+        self.input_col = img2col(input_value, self.filter_size[2:], self.stride, self.padding)
         output = np.dot(self.input_col, filter2row(self.filter_array.value))
         output += bias2row(self.filter_bias.value)
         output = output.reshape((n,) + self.output_size[1:] + (-1,)).transpose(0, 3, 1, 2)

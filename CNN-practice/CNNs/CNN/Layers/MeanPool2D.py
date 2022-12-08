@@ -10,20 +10,20 @@ class MeanPool2D(Layer):
         self.output_size = (input_size[0], input_size[1] // self.pooling_y, input_size[2] // self.pooling_x)
         self.w = self.pooling_y * self.pooling_x
 
-    def predict_forward(self, input):
-        n = input.shape[0]
+    def predict_forward(self, input_value):
+        n = input_value.shape[0]
         c, h, w = self.output_size
-        output = np.empty_like(input).reshape((n, c, h * w, -1))
+        output = np.empty_like(input_value).reshape((n, c, h * w, -1))
         for y in range(h):
             for x in range(w):
                 ly, ry = y * self.pooling_y, (y + 1) * self.pooling_y
                 lx, rx = x * self.pooling_x, (x + 1) * self.pooling_x
-                output[:, :, y * w + x, :] = input[:, :, lx: rx, ly: ry].reshape((n, c, 1, -1))
+                output[:, :, y * w + x, :] = input_value[:, :, lx: rx, ly: ry].reshape((n, c, 1, -1))
         output = np.average(output, axis=3).reshape((n, c, h, w))
         return output
 
-    def forward(self, input):
-        return self.predict_forward(input)
+    def forward(self, input_value):
+        return self.predict_forward(input_value)
 
     def backward(self, output_grad):
         n = output_grad.shape[0]

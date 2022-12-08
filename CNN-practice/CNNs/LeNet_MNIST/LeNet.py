@@ -57,7 +57,7 @@ class LeNet:
         )
         self.nn.build_model(self.nn.optimizer)
 
-    def work(self, epoch=10, batch_size=1024, run_size=32, version=0):
+    def work(self, epoch=10, batch_size=1024, version=0):
         save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "weight")
         train_images, train_labels, test_images, test_labels = read_data()
         train_images = train_images / 255.0
@@ -69,7 +69,6 @@ class LeNet:
             label_array=train_labels,
             epoch_number=epoch,
             batch_size=batch_size,
-            run_size=run_size,
             test_image_array=test_images,
             test_label_array=test_labels,
             version=version,

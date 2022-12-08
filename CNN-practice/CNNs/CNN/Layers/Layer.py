@@ -1,20 +1,20 @@
 import abc
+from ..GPU_np import np
+from ..Base.NeuralData import NeuralData
 
-import numpy as np
 
-
-class Layer:
+class Layer(NeuralData):
     def __init__(self):
         self.input_size = None
         self.output_size = None
         self.parameter_dict = {}
 
     @abc.abstractmethod
-    def predict_forward(self, input):
+    def predict_forward(self, input_value):
         pass
 
     @abc.abstractmethod
-    def forward(self, input):
+    def forward(self, input_value):
         pass
 
     @abc.abstractmethod

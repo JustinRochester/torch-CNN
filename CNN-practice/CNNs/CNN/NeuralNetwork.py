@@ -37,14 +37,22 @@ class NeuralNetwork(Sequential):
         self.optimizer = optimizer_dict[optimizer_name]()
         self.recorder = Recorder()
 
+    def get_data(self):
+        return self.optimizer.get_data() + super().get_data()
+
+    def load_data(self, data_iter):
+        self.optimizer.load_data(data_iter)
+        super().load_data(data_iter)
+
     def save(self, version, save_path):
         self.recorder.set_path(save_path)
-        self.recorder.save_version(version, self.optimizer)
+        data = self.get_data()
+        self.recorder.save_version(version, data)
         self.recorder.save_log(version, self.train_log, self.test_log, self.pred_log, self.acc_log)
 
         if max(self.acc_log) != self.acc_log[-1] and self.recorder.exists_best():
             return
-        self.recorder.save_best(self.optimizer)
+        self.recorder.save_best(data)
 
     def load(self, version, save_path):
         self.recorder.set_path(save_path)
@@ -58,15 +66,12 @@ class NeuralNetwork(Sequential):
             self.recorder.remove_best()
             return
         if version != 'best':
-            self.optimizer = self.recorder.load_version(version)
+            data = self.recorder.load_version(version)
+            self.load_data(iter(data))
             self.train_log, self.test_log, self.pred_log, self.acc_log = self.recorder.load_log(version)
         else:
-            self.optimizer = self.recorder.load_best()
-
-        self.optimizer.load_data()
-        optimizer_iter = self.optimizer.get_iter()
-        for layer in self.layers:
-            layer.load_model(optimizer_iter)
+            data = self.recorder.load_best()
+            self.load_data(iter(data))
 
     def predict(self, test_images, batch_size=128, test_pred_need=False, test_loss_need=False, test_labels=None):
         n = test_images.shape[0]
@@ -134,7 +139,6 @@ class NeuralNetwork(Sequential):
 
     def train_epoch(self, image_array, label_array,
                     batch_size=128,
-                    run_size=32,
                     epoch_id=1, epoch_number=1):
         n = image_array.shape[0]
         select_index = np.random.permutation(n)
@@ -142,34 +146,30 @@ class NeuralNetwork(Sequential):
             r_batch = min(n, l_batch + batch_size)
             self.zero_grad()
             loss_sum = 0
-            for l_run in range(l_batch, r_batch, run_size):
-                r_run = min(r_batch, l_run + run_size)
-                output = self.forward(image_array[select_index[l_run: r_run]])
-                loss_value, output_grad = self.loss_function.loss(
-                    label=label_array[select_index[l_run: r_run]],
-                    output=output,
-                    regular_loss=self.optimizer.regular_loss()
-                )
-                self.backward(output_grad)
-                loss_sum += np.sum(loss_value)
+            output = self.forward(image_array[select_index[l_batch: r_batch]])
+            loss_value, output_grad = self.loss_function.loss(
+                label=label_array[select_index[l_batch: r_batch]],
+                output=output,
+                regular_loss=self.optimizer.regular_loss()
+            )
+            self.backward(output_grad)
+            loss_sum += np.sum(loss_value)
             self.multi_grad(multiply=1/(r_batch-l_batch+1))
             self.optimizer.update(self.learning_rate)
-            self.update_statistics()
             self.train_log_record(epoch_id, epoch_number, r_batch, n, float(loss_sum) / (r_batch - l_batch + 1))
 
     def train(self, image_array, label_array, epoch_number=50,
               batch_size=1024,
-              run_size=32,
               test_image_array=None, test_label_array=None,
               version=0,
               save_path=None):
         self.load(version=version, save_path=save_path)
         if version == 0:
-            self.test_log_record(version, epoch_number, test_image_array, test_label_array, run_size)
+            self.test_log_record(version, epoch_number, test_image_array, test_label_array, batch_size)
         for i in range(version + 1, epoch_number + 1):
-            start_time = time.clock()
-            self.train_epoch(image_array, label_array, batch_size, run_size, i, epoch_number)
-            end_time = time.clock()
+            start_time = time.perf_counter()
+            self.train_epoch(image_array, label_array, batch_size, i, epoch_number)
+            end_time = time.perf_counter()
             self.learning_rate = self.learning_rate_function(self.learning_rate, i, epoch_number)
 
             message = "finished training in [%d/%d] epoch, cost time = %f second(s)"

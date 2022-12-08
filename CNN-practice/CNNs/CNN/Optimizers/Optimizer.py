@@ -1,16 +1,16 @@
 import abc
 from ..GPU_np import np
+from ..Base.NeuralData import NeuralData
 
 
-class Optimizer:
+class Optimizer(NeuralData):
     def __init__(self):
         self.parameter_list = []
         self.alpha_list = []
-        self.load_list = []
 
-    @abc.abstractmethod
     def append(self, parameter, alpha=0):
-        pass
+        self.parameter_list.append(parameter)
+        self.alpha_list.append(np.asarray([alpha]))
 
     def regular_loss(self):
         loss_value = 0
@@ -23,13 +23,15 @@ class Optimizer:
     def update(self, learning_rate=1e-3):
         pass
 
-    def get_iter(self):
-        return iter(self.parameter_list)
+    def get_data(self):
+        lst = []
+        for parameter in self.parameter_list:
+            lst += parameter.get_data()
+        return lst + self.alpha_list
 
-    def load_data(self):
-        for lst in self.load_list:
-            for i in range(len(lst)):
-                lst[i] = np.asarray(lst[i].tolist())
+    def load_data(self, data_iter):
         for i in range(len(self.parameter_list)):
-            self.parameter_list[i].value = np.asarray(self.parameter_list[i].value.tolist())
-            self.parameter_list[i].grad = np.asarray(self.parameter_list[i].grad.tolist())
+            self.parameter_list[i].load_data(data_iter)
+
+        for i in range(len(self.alpha_list)):
+            self.alpha_list[i] = next(data_iter)

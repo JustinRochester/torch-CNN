@@ -1,9 +1,9 @@
 import numpy as np
-
+from .Base.NeuralData import NeuralData
 from .Layers import *
 
 
-class Sequential:
+class Sequential(NeuralData):
     def __init__(self, *layer_list):
         self.layers = []
         self.add(*layer_list)
@@ -12,14 +12,14 @@ class Sequential:
         for layer in layer_list:
             self.layers.append(layer)
 
-    def predict_forward(self, input):
-        x = np.copy(input)
+    def predict_forward(self, input_value):
+        x = np.copy(input_value)
         for layer in self.layers:
             x = layer.predict_forward(x)
         return x
 
-    def forward(self, input):
-        x = np.copy(input)
+    def forward(self, input_value):
+        x = np.copy(input_value)
         for layer in self.layers:
             x = layer.forward(x)
         return x
@@ -29,11 +29,6 @@ class Sequential:
         for layer in self.layers[::-1]:
             x = layer.backward(x)
         return x
-
-    def update_statistics(self):
-        for layer in self.layers:
-            if isinstance(layer, BatchNormalization) or isinstance(layer, Sequential):
-                layer.update_statistics()
 
     def zero_grad(self):
         for layer in self.layers:
@@ -50,3 +45,13 @@ class Sequential:
     def load_model(self, optimizer_iter):
         for layer in self.layers:
             layer.load_model(optimizer_iter)
+
+    def get_data(self):
+        lst = []
+        for layer in self.layers:
+            lst += layer.get_data()
+        return lst
+
+    def load_data(self, data_iter):
+        for layer in self.layers:
+            layer.load_data(data_iter)
