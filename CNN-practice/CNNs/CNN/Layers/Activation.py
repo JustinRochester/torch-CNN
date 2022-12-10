@@ -11,12 +11,12 @@ class Activation(Layer):
         self.input_size = self.output_size = input_size
         self.activation = activation_dict[activation_name]
 
-    def predict_forward(self, input):
-        return self.activation.forward(input)
+    def predict_forward(self, input_value):
+        return self.activation.forward(input_value)
 
-    def forward(self, input):
-        self.input = input
-        self.output = self.predict_forward(input)
+    def forward(self, input_value):
+        self.input = input_value
+        self.output = self.predict_forward(input_value)
         return np.copy(self.output)
 
     def backward(self, output_grad):

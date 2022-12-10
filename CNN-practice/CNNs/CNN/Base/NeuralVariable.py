@@ -6,7 +6,7 @@ class NeuralVariable(NeuralData):
     def __init__(self, shape=(1,), initial_mu=0, initial_std=1):
         self.shape = shape
         self.value = np.random.normal(initial_mu, initial_std, shape)
-        self.grad = np.zeros(shape)
+        self.grad = np.empty(shape)
 
     def load_data(self, data_iter):
         self.value = next(data_iter)

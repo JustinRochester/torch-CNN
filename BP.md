@@ -159,6 +159,7 @@ $$
 $$
 
 $$
+
 &{\partial C\over \partial \boldsymbol x_i}
 \\=&\sum_p \boldsymbol e_p\cdot ({\partial C\over \partial \boldsymbol x_i})_p
 \\=&\sum_p\boldsymbol e_p\cdot [({\partial C\over \partial \hat{\boldsymbol x}_i})_p\cdot ({\partial \hat{\boldsymbol x}_i\over \partial \boldsymbol x_i})_p+({\partial C\over \partial \boldsymbol \mu})_p\cdot ({\partial \boldsymbol \mu\over \partial \boldsymbol x_i})_p+({\partial C\over \partial \boldsymbol \sigma^2})_p\cdot ({\partial  \boldsymbol \sigma^2\over \partial \boldsymbol x_i})_p]
