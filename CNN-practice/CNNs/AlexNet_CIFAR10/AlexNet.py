@@ -2,7 +2,7 @@ import os.path
 
 from ..CNN.GPU_np import np
 from .load_data import read_data
-from ..CNN.NeuralNetwork import NeuralNetwork
+from ..CNN.NeuralNetwork import *
 
 
 def learning_rate_function(lr, i, tot):
@@ -10,53 +10,73 @@ def learning_rate_function(lr, i, tot):
 
 
 class AlexNet:
-    def __init__(self, learning_rate=1e-3):
+    def __init__(self, learning_rate=1e-3, class_num=10):
         self.c, self.h, self.w = 3, 32, 32
         self.nn = NeuralNetwork((self.c, self.h, self.w),
+                                class_num=class_num,
                                 learning_rate=learning_rate,
                                 loss_name='cross_entropy_softmax',
                                 optimizer_name='Adam',
                                 alpha=0.00,
                                 learning_rate_function=learning_rate_function)
-        self.nn.add_BN()
+        self.nn.add(
+            BatchNormalization((3, 32, 32)),
 
-        self.nn.add_conv((3, 3), 96, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_max_pool((2, 2))
+            Sequential(
+                Conv2D(input_size=(3, 32, 32), filter_size=(3, 3), filter_num=96, padding=1),
+                BatchNormalization((96, 32, 32)),
+                Activation(input_size=(96, 32, 32), activation_name='relu'),
+                MaxPool2D(input_size=(96, 32, 32), pooling_size=(2, 2))
+            ),
 
-        self.nn.add_conv((3, 3), 256, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_max_pool((2, 2))
+            Sequential(
+                Conv2D(input_size=(96, 16, 16), filter_size=(3, 3), filter_num=256, padding=1),
+                BatchNormalization((256, 16, 16)),
+                Activation(input_size=(256, 16, 16), activation_name='relu'),
+                MaxPool2D(input_size=(256, 16, 16), pooling_size=(2, 2))
+            ),
 
-        self.nn.add_conv((3, 3), 384, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
+            Sequential(
+                Conv2D(input_size=(256, 8, 8), filter_size=(3, 3), filter_num=384, padding=1),
+                BatchNormalization((384, 8, 8)),
+                Activation(input_size=(384, 8, 8), activation_name='relu'),
+                MaxPool2D(input_size=(384, 8, 8), pooling_size=(2, 2))
+            ),
 
-        self.nn.add_conv((3, 3), 384, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
+            Sequential(
+                Conv2D(input_size=(384, 4, 4), filter_size=(3, 3), filter_num=384, padding=1),
+                BatchNormalization((384, 4, 4)),
+                Activation(input_size=(384, 4, 4), activation_name='relu'),
+                MaxPool2D(input_size=(384, 4, 4), pooling_size=(2, 2))
+            ),
 
-        self.nn.add_conv((3, 3), 256, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_max_pool((2, 2))
+            Sequential(
+                Conv2D(input_size=(384, 2, 2), filter_size=(3, 3), filter_num=256, padding=1),
+                BatchNormalization((256, 2, 2)),
+                Activation(input_size=(256, 2, 2), activation_name='relu'),
+                MaxPool2D(input_size=(256, 2, 2), pooling_size=(2, 2))
+            ),
 
-        self.nn.add_flatten()
-        self.nn.add_dropout()
+            Flatten((256, 1, 1)),
+            Dropout((1 * 1 * 256, 1)),
 
-        self.nn.add_fc((4096, 1))
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_dropout()
+            Sequential(
+                Linear(input_size=1 * 1 * 256, output_size=4096),
+                BatchNormalization((4096, 1)),
+                Activation(input_size=(4096, 1), activation_name='relu'),
+                Dropout((4096, 1))
+            ),
 
-        self.nn.add_fc((4096, 1))
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_dropout()
+            Sequential(
+                Linear(input_size=4096, output_size=4096),
+                BatchNormalization((4096, 1)),
+                Activation(input_size=(4096, 1), activation_name='relu'),
+                Dropout((4096, 1))
+            ),
 
-        self.nn.add_fc((10, 1))
+            Linear(input_size=4096, output_size=class_num)
+        )
+        self.nn.build_model(self.nn.optimizer)
 
     def test_accuracy(self, version=10, batch_size=1024):
         save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "weight")

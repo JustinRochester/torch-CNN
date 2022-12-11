@@ -27,7 +27,7 @@ class Linear(Layer):
 
     def predict_forward(self, input_value):
         n = input_value.shape[0]
-        output = np.dot(self.w.value, input_value.reshape((n, -1)).T)
+        output = self.w.value.dot(input_value.reshape((n, -1)).T)
         output = (output + self.bias.value).T.reshape((n, -1, 1))
         return output
 
@@ -39,7 +39,11 @@ class Linear(Layer):
         n = output_grad.shape[0]
         grad_output = output_grad
         self.bias.grad += np.sum(grad_output, axis=0)
-        self.w.grad += np.sum(np.matmul(grad_output, self.input.transpose(0, 2, 1)), axis=0)
-        input_grad = np.matmul(grad_output.reshape((n, -1)), self.w.value).reshape((n,) + self.input_size)
+        h = grad_output.shape[1]
+        w = self.input.shape[1]
+        self.w.grad += grad_output.transpose(1, 0, 2).reshape((h, -1)).dot(
+                                                self.input.transpose(0, 2, 1).reshape((-1, w))
+                        )
+        input_grad = grad_output.reshape((n, -1)).dot(self.w.value).reshape((n,) + self.input_size)
         self.input = None
         return input_grad

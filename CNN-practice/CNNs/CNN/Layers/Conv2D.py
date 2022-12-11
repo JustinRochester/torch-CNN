@@ -38,7 +38,7 @@ class Conv2D(Layer):
     def predict_forward(self, input_value):
         n = input_value.shape[0]
         input_value = img2col(input_value, self.filter_size[2:], self.stride, self.padding)
-        output = np.dot(input_value, filter2row(self.filter_array.value))
+        output = input_value.dot(filter2row(self.filter_array.value))
         output += bias2row(self.filter_bias.value)
         output = output.reshape((n,) + self.output_size[1:] + (-1,)).transpose(0, 3, 1, 2)
         return output
@@ -46,7 +46,7 @@ class Conv2D(Layer):
     def forward(self, input_value):
         n = input_value.shape[0]
         self.input_col = img2col(input_value, self.filter_size[2:], self.stride, self.padding)
-        output = np.dot(self.input_col, filter2row(self.filter_array.value))
+        output = self.input_col.dot(filter2row(self.filter_array.value))
         output += bias2row(self.filter_bias.value)
         output = output.reshape((n,) + self.output_size[1:] + (-1,)).transpose(0, 3, 1, 2)
         return output
@@ -56,11 +56,11 @@ class Conv2D(Layer):
         grad_output = output_grad.transpose(0, 2, 3, 1).reshape((-1, o))
         self.filter_bias.grad += row2bias(grad_output)
         self.filter_array.grad += row2filter(
-            row_array=np.dot(self.input_col.T, grad_output),
+            row_array=self.input_col.T.dot(grad_output),
             filter_size=self.filter_size
         )
         input_grad = col2img(
-            column_array=np.dot(grad_output, filter2row(self.filter_array.value).T),
+            column_array=grad_output.dot(filter2row(self.filter_array.value).T),
             image_size=(n,) + self.input_size,
             filter_size=self.filter_size[2:],
             stride=self.stride,
