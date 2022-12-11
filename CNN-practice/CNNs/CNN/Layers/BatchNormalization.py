@@ -33,25 +33,37 @@ class BatchNormalization(Layer):
             initial_mu=0,
             initial_std=0
         )
-        self.parameter_dict = {
+        self.parameter_list = {
             "gamma": self.gamma,
             "beta": self.beta,
         }
 
-    def predict_forward(self, input):
-        n, c = input.shape[:2]
-        input = (input.reshape(n, c, -1) - self.running_mu) / self.running_sigma
-        output = input * self.gamma.value + self.beta.value
+    def set_data(self, data_iter):
+        super().set_data(data_iter)
+        self.running_mu = next(data_iter)
+        self.running_sigma2 = next(data_iter)
+        self.running_sigma = np.sqrt(self.running_sigma2 + eps)
+
+    def get_data(self):
+        lst = super().get_data()
+        lst.append(self.running_mu)
+        lst.append(self.running_sigma2)
+        return lst
+
+    def predict_forward(self, input_value):
+        n, c = input_value.shape[:2]
+        input_value = (input_value.reshape(n, c, -1) - self.running_mu) / self.running_sigma
+        output = input_value * self.gamma.value + self.beta.value
         return output.reshape((n,) + self.output_size)
 
-    def forward(self, input):
-        n, c = input.shape[:2]
-        input = input.reshape((n, c, -1))
-        average_size = n * input.shape[2]
+    def forward(self, input_value):
+        n, c = input_value.shape[:2]
+        input_value = input_value.reshape((n, c, -1))
+        average_size = n * input_value.shape[2]
 
-        self.sample_mu = np.einsum('ijk->j', input) / average_size
+        self.sample_mu = np.einsum('ijk->j', input_value) / average_size
         self.sample_mu = self.sample_mu.reshape(self.parameter_shape)
-        self.sample_sigma2 = np.einsum('ijk->j', np.square(input-self.sample_mu)) / average_size
+        self.sample_sigma2 = np.einsum('ijk->j', np.square(input_value - self.sample_mu)) / average_size
         self.sample_sigma2 = self.sample_sigma2.reshape(self.parameter_shape)
         self.sample_sigma = np.sqrt(self.sample_sigma2 + eps)
 
@@ -59,7 +71,7 @@ class BatchNormalization(Layer):
         self.running_sigma2 = self.running_sigma2 * (1 - self.rho) + self.sample_sigma2 * self.rho
         self.running_sigma = np.sqrt(self.running_sigma2 + eps)
 
-        self.input_norm = (input - self.sample_mu) / self.sample_sigma
+        self.input_norm = (input_value - self.sample_mu) / self.sample_sigma
         output = self.input_norm * self.gamma.value + self.beta.value
         return output.reshape((n,) + self.output_size)
 

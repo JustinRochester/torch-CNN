@@ -38,11 +38,11 @@ class NeuralNetwork(Sequential):
         self.recorder = Recorder()
 
     def get_data(self):
-        return self.optimizer.get_data() + super().get_data()
+        return super().get_data() + self.optimizer.get_data()
 
-    def load_data(self, data_iter):
-        self.optimizer.load_data(data_iter)
-        super().load_data(data_iter)
+    def set_data(self, data_iter):
+        super().set_data(data_iter)
+        self.optimizer.set_data(data_iter)
 
     def save(self, version, save_path):
         self.recorder.set_path(save_path)
@@ -67,11 +67,11 @@ class NeuralNetwork(Sequential):
             return
         if version != 'best':
             data = self.recorder.load_version(version)
-            self.load_data(iter(data))
+            self.set_data(iter(data))
             self.train_log, self.test_log, self.pred_log, self.acc_log = self.recorder.load_log(version)
         else:
             data = self.recorder.load_best()
-            self.load_data(iter(data))
+            self.set_data(iter(data))
 
     def predict(self, test_images, batch_size=128, test_pred_need=False, test_loss_need=False, test_labels=None):
         n = test_images.shape[0]

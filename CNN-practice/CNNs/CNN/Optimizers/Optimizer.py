@@ -1,9 +1,9 @@
 import abc
 from ..GPU_np import np
-from ..Base.NeuralData import NeuralData
+from ..Interfaces.Savable import Savable
 
 
-class Optimizer(NeuralData):
+class Optimizer(Savable):
     def __init__(self):
         self.parameter_list = []
         self.alpha_list = []
@@ -29,9 +29,9 @@ class Optimizer(NeuralData):
             lst += parameter.get_data()
         return lst + self.alpha_list
 
-    def load_data(self, data_iter):
+    def set_data(self, data_iter):
         for i in range(len(self.parameter_list)):
-            self.parameter_list[i].load_data(data_iter)
+            self.parameter_list[i].set_data(data_iter)
 
         for i in range(len(self.alpha_list)):
             self.alpha_list[i] = next(data_iter)

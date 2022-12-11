@@ -1,9 +1,8 @@
 import numpy as np
-from .Base.NeuralData import NeuralData
-from .Layers import *
+from .Interfaces import *
 
 
-class Sequential(NeuralData):
+class Sequential(Savable, Propagable):
     def __init__(self, *layer_list):
         self.layers = []
         self.add(*layer_list)
@@ -42,16 +41,12 @@ class Sequential(NeuralData):
         for layer in self.layers:
             layer.build_model(optimizer)
 
-    def load_model(self, optimizer_iter):
-        for layer in self.layers:
-            layer.load_model(optimizer_iter)
-
     def get_data(self):
         lst = []
         for layer in self.layers:
             lst += layer.get_data()
         return lst
 
-    def load_data(self, data_iter):
+    def set_data(self, data_iter):
         for layer in self.layers:
-            layer.load_data(data_iter)
+            layer.set_data(data_iter)

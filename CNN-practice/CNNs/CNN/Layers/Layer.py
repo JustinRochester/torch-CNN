@@ -1,42 +1,48 @@
 import abc
 from ..GPU_np import np
-from ..Base.NeuralData import NeuralData
+from ..Interfaces import *
+from ..Base.NeuralVariable import NeuralVariable
 
 
-class Layer(NeuralData):
+class Layer(Savable, Propagable):
     def __init__(self):
         self.input_size = None
         self.output_size = None
         self.parameter_dict = {}
 
-    @abc.abstractmethod
-    def predict_forward(self, input_value):
-        pass
+    def set_data(self, data_iter):
+        for name in self.parameter_dict.keys():
+            parameter = self.parameter_dict[name]
+            if not isinstance(parameter, NeuralVariable):
+                raise TypeError("Not a NeuralVariable")
+            parameter.set_data(data_iter)
 
-    @abc.abstractmethod
-    def forward(self, input_value):
-        pass
-
-    @abc.abstractmethod
-    def backward(self, output_grad):
-        pass
+    def get_data(self):
+        lst = []
+        for name in self.parameter_dict.keys():
+            parameter = self.parameter_dict[name]
+            if not isinstance(parameter, NeuralVariable):
+                raise TypeError("Not a NeuralVariable")
+            lst += parameter.get_data()
+        return lst
 
     def zero_grad(self):
         for name in self.parameter_dict.keys():
-            parameter = getattr(self, name)
+            parameter = self.parameter_dict[name]
+            if not isinstance(parameter, NeuralVariable):
+                raise TypeError("Not a NeuralVariable")
             parameter.grad = np.zeros_like(parameter.grad)
 
     def multi_grad(self, multiply=1):
         for name in self.parameter_dict.keys():
-            parameter = getattr(self, name)
+            parameter = self.parameter_dict[name]
+            if not isinstance(parameter, NeuralVariable):
+                raise TypeError("Not a NeuralVariable")
             parameter.grad *= multiply
 
     def build_model(self, optimizer):
-        for name, value in self.parameter_dict.items():
-            optimizer.append(value)
-
-    def load_model(self, optimizer_iter):
         for name in self.parameter_dict.keys():
-            value = next(optimizer_iter)
-            setattr(self, name, value)
-            self.parameter_dict[name] = value
+            parameter = self.parameter_dict[name]
+            if not isinstance(parameter, NeuralVariable):
+                raise TypeError("Not a NeuralVariable")
+            optimizer.append(parameter)

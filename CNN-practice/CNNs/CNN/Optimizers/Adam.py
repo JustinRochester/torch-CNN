@@ -29,8 +29,8 @@ class AdamOptimizer(Optimizer):
             second_unbias = self.second_moment[i] / (1 - self.pow_beta2)
             value -= learning_rate * first_unbias / (np.sqrt(second_unbias) + 1e-8)
 
-    def load_data(self, data_iter):
-        super().load_data(data_iter)
+    def set_data(self, data_iter):
+        super().set_data(data_iter)
         for i in range(len(self.first_moment)):
             self.first_moment[i] = next(data_iter)
 
