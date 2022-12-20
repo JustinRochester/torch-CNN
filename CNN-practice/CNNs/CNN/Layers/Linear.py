@@ -12,11 +12,11 @@ class Linear(Layer):
         self.output_size = (output_size, 1)
 
         self.w = NeuralVariable(
-                                    shape=(output_size, input_size),
+                                    shape=(input_size, output_size),
                                     initial_std=np.sqrt(2 / input_size)
                                 )
         self.bias = NeuralVariable(
-                                       shape=(output_size, 1),
+                                       shape=(1, output_size),
                                        initial_std=np.sqrt(2 / input_size)
                                    )
 
@@ -26,9 +26,9 @@ class Linear(Layer):
         }
 
     def predict_forward(self, input_value):
-        n = input_value.shape[0]
-        output = self.w.value.dot(input_value.reshape((n, -1)).T)
-        output = (output + self.bias.value).T.reshape((n, -1, 1))
+        n, i, _ = input_value.shape
+        output = input_value.reshape((n, -1)).dot(self.w.value)
+        output = (output + self.bias.value).reshape((n, -1, 1))
         return output
 
     def forward(self, input_value):
@@ -36,14 +36,11 @@ class Linear(Layer):
         return self.predict_forward(input_value)
 
     def backward(self, output_grad):
-        n = output_grad.shape[0]
-        grad_output = output_grad
-        self.bias.grad += np.sum(grad_output, axis=0)
-        h = grad_output.shape[1]
-        w = self.input.shape[1]
-        self.w.grad += grad_output.transpose(1, 0, 2).reshape((h, -1)).dot(
-                                                self.input.transpose(0, 2, 1).reshape((-1, w))
-                        )
-        input_grad = grad_output.reshape((n, -1)).dot(self.w.value).reshape((n,) + self.input_size)
+        n, o, _ = output_grad.shape
+        i = self.input_size[0]
+        output_grad = output_grad.reshape((n, o))
+        self.bias.grad += np.sum(output_grad, axis=0).reshape((1, o))
+        self.w.grad += self.input.reshape((n, -1)).T.dot(output_grad)
+        input_grad = output_grad.dot(self.w.value.T)
         self.input = None
-        return input_grad
+        return input_grad.reshape((n, i, 1))
