@@ -11,11 +11,11 @@ def get_stride_dim(stride):
         if len(stride) == 2:
             stride_h, stride_w = stride
         else:
-            raise Exception("Unacceptable stride type")
+            raise TypeError("Unacceptable stride type")
     else:
         stride_h = stride_w = stride
     if not isinstance(stride_h, int) or not isinstance(stride_w, int):
-        raise Exception("Unacceptable stride type")
+        raise TypeError("Unacceptable stride type")
     return stride_h, stride_w
 
 
@@ -33,17 +33,17 @@ def get_padding_dim(padding, filter_h, filter_w):
         if len(padding) == 2:
             padding_h, padding_w = padding
         else:
-            raise Exception("Unacceptable padding type")
+            raise TypeError("Unacceptable padding type")
     elif padding == 'none':
         padding_h, padding_w = 0, 0
     elif padding == 'same':
         if filter_h % 2 == 0 or filter_w % 2 == 0:
-            raise Exception("Filter size could not keep same shape")
+            raise TypeError("Filter size could not keep same shape")
         padding_h, padding_w = filter_w // 2, filter_h // 2
     else:
         padding_h = padding_w = padding
     if not isinstance(padding_h, int) or not isinstance(padding_w, int):
-        raise Exception("Unacceptable padding type")
+        raise TypeError("Unacceptable padding type")
     return padding_h, padding_w
 
 
