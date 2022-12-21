@@ -2,7 +2,7 @@ import os.path
 
 from ..CNN.GPU_np import np
 from .load_data import read_data
-from ..CNN.NeuralNetwork import NeuralNetwork
+from ..CNN.NeuralNetwork import *
 
 
 def learning_rate_function(lr, i, tot):
@@ -10,79 +10,96 @@ def learning_rate_function(lr, i, tot):
 
 
 class VGGNet:
-    def __init__(self, learning_rate=1e-3):
+    def __init__(self, learning_rate=1e-3, class_num=10):
         self.c, self.h, self.w = 3, 32, 32
         self.nn = NeuralNetwork((self.c, self.h, self.w),
+                                class_num=class_num,
                                 learning_rate=learning_rate,
                                 loss_name='cross_entropy_softmax',
                                 optimizer_name='Adam',
                                 alpha=0.00,
                                 learning_rate_function=learning_rate_function)
-        self.nn.add_BN()
-
-        self.nn.add_conv((3, 3), 64, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_conv((3, 3), 64, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_max_pool((2, 2))
-
-        self.nn.add_conv((3, 3), 128, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_conv((3, 3), 128, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_max_pool((2, 2))
-
-        self.nn.add_conv((3, 3), 256, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_conv((3, 3), 256, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_conv((3, 3), 256, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_max_pool((2, 2))
-
-        self.nn.add_conv((3, 3), 512, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_conv((3, 3), 512, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_conv((3, 3), 512, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_max_pool((2, 2))
-
-        self.nn.add_conv((3, 3), 512, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_conv((3, 3), 512, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_conv((3, 3), 512, padding=1)
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_max_pool((2, 2))
-
-        self.nn.add_flatten()
-        self.nn.add_dropout()
-
-        self.nn.add_fc((256, 1))
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_dropout()
-
-        self.nn.add_fc((256, 1))
-        self.nn.add_BN()
-        self.nn.add_activation('relu')
-        self.nn.add_dropout()
-
-        self.nn.add_fc((10, 1))
+        self.nn.add(
+            BatchNormalization((3, 32, 32)),
+            Sequential(
+                Conv2D(input_size=(3, 32, 32), filter_size=(3, 3), filter_num=64, padding=1),
+                BatchNormalization((64, 32, 32)),
+                Activation(input_size=(64, 32, 32), activation_name='relu'),
+                Conv2D(input_size=(64, 32, 32), filter_size=(3, 3), filter_num=64, padding=1),
+                BatchNormalization((64, 32, 32)),
+                Activation(input_size=(64, 32, 32), activation_name='relu'),
+                MaxPool2D(input_size=(64, 32, 32), pooling_size=(2, 2)),
+            ),
+            Sequential(
+                Conv2D(input_size=(64, 16, 16), filter_size=(3, 3), filter_num=128, padding=1),
+                BatchNormalization((128, 16, 16)),
+                Activation(input_size=(128, 16, 16), activation_name='relu'),
+                Conv2D(input_size=(128, 16, 16), filter_size=(3, 3), filter_num=128, padding=1),
+                BatchNormalization((128, 16, 16)),
+                Activation(input_size=(128, 16, 16), activation_name='relu'),
+                MaxPool2D(input_size=(128, 16, 16), pooling_size=(2, 2)),
+            ),
+            Sequential(
+                Conv2D(input_size=(128, 8, 8), filter_size=(3, 3), filter_num=256, padding=1),
+                BatchNormalization((256, 8, 8)),
+                Activation(input_size=(256, 8, 8), activation_name='relu'),
+                Conv2D(input_size=(256, 8, 8), filter_size=(3, 3), filter_num=256, padding=1),
+                BatchNormalization((256, 8, 8)),
+                Activation(input_size=(256, 8, 8), activation_name='relu'),
+                Conv2D(input_size=(256, 8, 8), filter_size=(3, 3), filter_num=256, padding=1),
+                BatchNormalization((256, 8, 8)),
+                Activation(input_size=(256, 8, 8), activation_name='relu'),
+                # Conv2D(input_size=(256, 8, 8), filter_size=(3, 3), filter_num=256, padding=1),  # VGG 19
+                # BatchNormalization((256, 8, 8)),  # VGG 19
+                # Activation(input_size=(256, 8, 8), activation_name='relu'),  # VGG 19
+                MaxPool2D(input_size=(256, 8, 8), pooling_size=(2, 2)),
+            ),
+            Sequential(
+                Conv2D(input_size=(256, 4, 4), filter_size=(3, 3), filter_num=512, padding=1),
+                BatchNormalization((512, 4, 4)),
+                Activation(input_size=(512, 4, 4), activation_name='relu'),
+                Conv2D(input_size=(512, 4, 4), filter_size=(3, 3), filter_num=512, padding=1),
+                BatchNormalization((512, 4, 4)),
+                Activation(input_size=(512, 4, 4), activation_name='relu'),
+                Conv2D(input_size=(512, 4, 4), filter_size=(3, 3), filter_num=512, padding=1),
+                BatchNormalization((512, 4, 4)),
+                Activation(input_size=(512, 4, 4), activation_name='relu'),
+                # Conv2D(input_size=(512, 4, 4), filter_size=(3, 3), filter_num=512, padding=1),  # VGG 19
+                # BatchNormalization((512, 4, 4)),  # VGG 19
+                # Activation(input_size=(512, 4, 4), activation_name='relu'),  # VGG 19
+                MaxPool2D(input_size=(512, 4, 4), pooling_size=(2, 2)),
+            ),
+            Sequential(
+                Conv2D(input_size=(512, 2, 2), filter_size=(3, 3), filter_num=512, padding=1),
+                BatchNormalization((512, 2, 2)),
+                Activation(input_size=(512, 2, 2), activation_name='relu'),
+                Conv2D(input_size=(512, 2, 2), filter_size=(3, 3), filter_num=512, padding=1),
+                BatchNormalization((512, 2, 2)),
+                Activation(input_size=(512, 2, 2), activation_name='relu'),
+                Conv2D(input_size=(512, 2, 2), filter_size=(3, 3), filter_num=512, padding=1),
+                BatchNormalization((512, 2, 2)),
+                Activation(input_size=(512, 2, 2), activation_name='relu'),
+                # Conv2D(input_size=(512, 2, 2), filter_size=(3, 3), filter_num=512, padding=1),  # VGG 19
+                # BatchNormalization((512, 2, 2)),  # VGG 19
+                # Activation(input_size=(512, 2, 2), activation_name='relu'),  # VGG 19
+                MaxPool2D(input_size=(512, 2, 2), pooling_size=(2, 2)),
+            ),
+            Flatten((512, 1, 1)),
+            Sequential(
+                Linear(input_size=512 * 1 * 1, output_size=4096),
+                BatchNormalization((4096, 1)),
+                Activation(input_size=(4096, 1), activation_name='relu'),
+                Dropout(input_size=(4096, 1)),
+            ),
+            Sequential(
+                Linear(input_size=4096, output_size=4096),
+                BatchNormalization((4096, 1)),
+                Activation(input_size=(4096, 1), activation_name='relu'),
+                Dropout(input_size=(4096, 1)),
+            ),
+            Linear(input_size=4096, output_size=class_num),
+        )
+        self.nn.build_model(self.nn.optimizer)
 
     def test_accuracy(self, version=10, batch_size=1024):
         save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "weight")
@@ -107,4 +124,3 @@ class VGGNet:
             test_label_array=test_labels,
             version=version,
             save_path=save_path)
-

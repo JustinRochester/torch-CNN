@@ -7,7 +7,7 @@ if __name__ == '__main__':
         learning_rate=1e-1
     )
     nn.work(
-        epoch=10,
+        epoch=9,
         batch_size=16,
-        version=0
+        version=9
     )
