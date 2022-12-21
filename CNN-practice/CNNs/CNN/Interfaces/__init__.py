@@ -1,2 +1,6 @@
+"""
+This package regulates the interfaces for the neural network
+"""
+
 from .Savable import Savable
-from .Propagable import Propagable
+from .Propagatable import Propagatable

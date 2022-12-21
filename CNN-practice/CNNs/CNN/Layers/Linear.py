@@ -1,6 +1,6 @@
 from ..GPU_np import np
 from .Layer import Layer
-from ..Base.NeuralVariable import NeuralVariable
+from ..Base.Tensor import Tensor
 
 
 class Linear(Layer):
@@ -11,11 +11,11 @@ class Linear(Layer):
         self.input_size = (input_size, 1)
         self.output_size = (output_size, 1)
 
-        self.w = NeuralVariable(
+        self.w = Tensor(
                                     shape=(input_size, output_size),
                                     initial_std=np.sqrt(2 / input_size)
                                 )
-        self.bias = NeuralVariable(
+        self.bias = Tensor(
                                        shape=(1, output_size),
                                        initial_std=np.sqrt(2 / input_size)
                                    )

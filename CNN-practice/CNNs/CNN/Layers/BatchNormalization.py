@@ -1,6 +1,6 @@
 from ..GPU_np import np
 from .Layer import Layer
-from ..Base.NeuralVariable import NeuralVariable
+from ..Base.Tensor import Tensor
 
 eps = 1e-9
 
@@ -23,12 +23,12 @@ class BatchNormalization(Layer):
         self.running_sigma2 = np.ones(self.parameter_shape)
         self.running_sigma = np.sqrt(self.running_sigma2 + eps)
 
-        self.gamma = NeuralVariable(
+        self.gamma = Tensor(
             shape=self.parameter_shape,
             initial_mu=1,
             initial_std=0
         )
-        self.beta = NeuralVariable(
+        self.beta = Tensor(
             shape=self.parameter_shape,
             initial_mu=0,
             initial_std=0

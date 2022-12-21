@@ -87,8 +87,12 @@ def softmax(x):
 
 
 if __name__ == '__main__':
+    from time import perf_counter as clock
     nn = CNN()
     image_array = np.random.random_sample((100, 1, 32, 32))*100
-    res = nn.forward(image_array)
-    res = softmax(res).reshape(-1, 10).T
-    print(res)
+    st = clock()
+    for t in range(100):
+        res = nn.forward(image_array)
+        res = softmax(res).reshape(-1, 10).T
+    ed = clock()
+    print(ed - st)

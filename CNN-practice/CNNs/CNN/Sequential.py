@@ -2,7 +2,7 @@ import numpy as np
 from .Interfaces import *
 
 
-class Sequential(Savable, Propagable):
+class Sequential(Savable, Propagatable):
     def __init__(self, *layer_list):
         self.layers = []
         self.add(*layer_list)
