@@ -47,10 +47,10 @@ def get_padding_dim(padding, filter_h, filter_w):
     return padding_h, padding_w
 
 
-def img2col(image_array, filter_size=(1, 3, 3, 3), stride=1, padding=0):
+def img2col(image_array, filter_shape=(3, 3), stride=1, padding=0):
     """
     :param image_array: shape = (input_number, input_channels, input_height, input_width)
-    :param filter_size: (output_channels, input_channels, filters_height, filters_width)
+    :param filter_shape: (filters_height, filters_width)
     :param stride: integer means the same strides in all dimension,
                    tuple means the different strides in each dimension
     :param padding: integer means the same paddings in all dimension,
@@ -60,7 +60,7 @@ def img2col(image_array, filter_size=(1, 3, 3, 3), stride=1, padding=0):
     :return: shape = (input_number * output_height * output_width, input_channels * filters_height * filters_width)
     """
     n, c, h, w = image_array.shape
-    _, _, filter_h, filter_w = filter_size
+    filter_h, filter_w = filter_shape
 
     stride_h, stride_w = get_stride_dim(stride)
     padding_h, padding_w = get_padding_dim(padding, filter_h, filter_w)
@@ -101,11 +101,11 @@ def bias2row(filter_bias):
     return filter_bias.reshape((1, -1))
 
 
-def col2img(column_array, image_size=(3, 32, 32), filter_size=(3, 3), stride=1, padding=0):
+def col2img(column_array, image_size=(3, 32, 32), filter_shape=(3, 3), stride=1, padding=0):
     """
     :param column_array: shape = (input_number * output_height * output_width, input_channels * filters_height * filters_width)
     :param image_size: (input_number, input_channels, input_height, input_width)
-    :param filter_size: (output_channels, input_channels, filters_height, filters_width)
+    :param filter_shape: (output_channels, input_channels, filters_height, filters_width)
     :param stride: integer means the same strides in all dimension,
                    tuple means the different strides in each dimension
     :param padding: integer means the same paddings in all dimension,
@@ -115,7 +115,7 @@ def col2img(column_array, image_size=(3, 32, 32), filter_size=(3, 3), stride=1, 
     :return: shape = (number of images, channels of images, height of images, width of images)
     """
     n, c, h, w = image_size
-    _, _, filter_h, filter_w = filter_size
+    _, _, filter_h, filter_w = filter_shape
     stride_h, stride_w = get_stride_dim(stride)
     padding_h, padding_w = get_padding_dim(padding, filter_h, filter_w)
     out_h = (h + 2 * padding_h - filter_h) // stride_h + 1

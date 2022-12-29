@@ -7,6 +7,7 @@ def softmax(x):
     Softmax the vector v = (v1, v2, ..., vm)^T and get u = (exp(v1), exp(v2), ... exp(vm))^T / sum(exp(vi))
     """
     n = x.shape[0]
-    y = np.exp(x - np.max(x, axis=(1, 2)).reshape((n, 1, 1)))
-    y /= np.sum(y, axis=(1, 2)).reshape((n, 1, 1))
-    return y
+    x = x.reshape((n, -1))
+    y = np.exp(x - np.max(x, axis=1).reshape((n, 1)))
+    y /= np.sum(y, axis=1).reshape((n, 1))
+    return y.reshape((n, -1, 1))

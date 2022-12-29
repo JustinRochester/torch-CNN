@@ -43,7 +43,7 @@ class Conv2D(Layer):
     def forward(self, input_value):
         n, ic, ih, iw = input_value.shape
         oc, oh, ow = self.output_size
-        input_value = img2col(input_value, self.filter_size, self.stride, self.padding)
+        input_value = img2col(input_value, self.filter_size[-2:], self.stride, self.padding)
         output = input_value.dot(filter2row(self.filter_array.value))
         output += bias2row(self.filter_bias.value)
         output = output.reshape((n, oh, ow, oc)).transpose(0, 3, 1, 2)
@@ -61,7 +61,7 @@ class Conv2D(Layer):
         input_grad = col2img(
             column_array=grad_output.dot(filter2row(self.filter_array.value).T),
             image_size=(n,) + self.input_size,
-            filter_size=self.filter_size,
+            filter_shape=self.filter_size,
             stride=self.stride,
             padding=self.padding
         )

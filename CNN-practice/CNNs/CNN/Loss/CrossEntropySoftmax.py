@@ -2,8 +2,7 @@ from ..GPU_np import np
 from .LossFunction import LossFunction
 from ..Base.softmax import softmax
 
-
-eps = 1e-20
+eps = 1e-50
 
 
 class CrossEntropySoftmax(LossFunction):
@@ -12,6 +11,7 @@ class CrossEntropySoftmax(LossFunction):
         n = output.shape[0]
         label = label.reshape((n, -1))
         softmax_output = softmax(output).reshape((n, -1))
-        loss_value = - np.sum(label * np.log(softmax_output + eps), axis=1) + regular_loss
-        grad_output = np.sum(label, axis=1).reshape((n, 1)) * softmax_output - label
+        loss_value = softmax_output[np.arange(n), np.argmax(label, axis=1)] + eps
+        loss_value = -np.log(loss_value) + regular_loss
+        grad_output = softmax_output - label
         return loss_value, grad_output.reshape((n, -1, 1))

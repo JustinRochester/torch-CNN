@@ -6,8 +6,9 @@ from LeNet import LeNet5
 from torch import optim
 from tqdm import trange
 
-train = datasets.MNIST('CIFAR10/', download=True, train=True)
-test = datasets.MNIST('CIFAR10/', download=True, train=False)
+data_path = 'CNN-practice/data/MNIST'
+train = datasets.MNIST(data_path, download=True, train=True)
+test = datasets.MNIST(data_path, download=True, train=False)
 
 X_train = train.data.unsqueeze(1) / 255.0
 y_train = train.targets

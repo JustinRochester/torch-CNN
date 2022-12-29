@@ -1,37 +1,17 @@
 from ..GPU_np import np
-from .Layer import Layer
+from .Pool2D import Pool2D
 
 
-class MeanPool2D(Layer):
+def mean_value(data):
+    return np.mean(data, axis=1)
+
+
+def d_mean_value(data):
+    return np.full_like(data, 1.0 / data.shape[1])
+
+
+class MeanPool2D(Pool2D):
     def __init__(self, input_size=(3, 32, 32), pooling_size=(2, 2)):
-        super().__init__()
-        self.input_size = input_size
-        self.pooling_y, self.pooling_x = pooling_size
-        self.output_size = (input_size[0], input_size[1] // self.pooling_y, input_size[2] // self.pooling_x)
-        self.w = self.pooling_y * self.pooling_x
-
-    def predict_forward(self, input_value):
-        n = input_value.shape[0]
-        c, h, w = self.output_size
-        output = np.empty_like(input_value).reshape((n, c, h * w, -1))
-        for y in range(h):
-            for x in range(w):
-                ly, ry = y * self.pooling_y, (y + 1) * self.pooling_y
-                lx, rx = x * self.pooling_x, (x + 1) * self.pooling_x
-                output[:, :, y * w + x, :] = input_value[:, :, lx: rx, ly: ry].reshape((n, c, 1, -1))
-        output = np.average(output, axis=3).reshape((n, c, h, w))
-        return output
-
-    def forward(self, input_value):
-        return self.predict_forward(input_value)
-
-    def backward(self, output_grad):
-        n = output_grad.shape[0]
-        input_grad = np.zeros((n,) + self.input_size)
-        for y in range(self.output_size[1]):
-            for x in range(self.output_size[2]):
-                ly, ry = y * self.pooling_y, (y+1) * self.pooling_y
-                lx, rx = x * self.pooling_x, (x+1) * self.pooling_x
-                input_grad[:, :, ly: ry, lx: rx] += output_grad[:, :, y: (y + 1), x: (x + 1)]
-        input_grad /= self.w
-        return input_grad
+        super().__init__(input_size, pooling_size)
+        self.f = mean_value
+        self.df = d_mean_value

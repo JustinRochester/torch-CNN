@@ -17,7 +17,7 @@ class LeNet:
                                 learning_rate=learning_rate,
                                 loss_name='cross_entropy_softmax',
                                 optimizer_name='Adam',
-                                alpha=0.00,
+                                alpha=0.0,
                                 learning_rate_function=learning_rate_function)
         self.nn.add(
             BatchNormalization((1, 28, 28)),

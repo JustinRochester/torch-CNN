@@ -2,7 +2,7 @@ from ..GPU_np import np
 from .Layer import Layer
 from ..Base.Tensor import Tensor
 
-eps = 1e-9
+eps = 1e-20
 
 
 class BatchNormalization(Layer):
