@@ -35,10 +35,3 @@ class Tensor(Savable):
         Clear the Tensor's current gradient.
         """
         self.grad = np.zeros_like(self.grad)
-
-    def multi_grad(self, multiply=1):
-        """
-        Multiply the Tensor's gradient with parameter multiply.
-        Average the batch's gradient with parameters like (multiply = 1 / batch_size)
-        """
-        self.grad *= multiply

@@ -154,7 +154,6 @@ class NeuralNetwork(Sequential):
             )
             self.backward(output_grad)
             loss_sum += np.sum(loss_value)
-            self.multi_grad(multiply=1/(r_batch-l_batch+1))
             self.optimizer.update(self.learning_rate)
             self.train_log_record(epoch_id, epoch_number, r_batch, n, float(loss_sum) / (r_batch - l_batch + 1))
 

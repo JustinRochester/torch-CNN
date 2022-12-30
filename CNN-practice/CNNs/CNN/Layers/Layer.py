@@ -33,13 +33,6 @@ class Layer(Savable, Propagatable):
                 raise TypeError("Not a NeuralVariable")
             parameter.zero_grad()
 
-    def multi_grad(self, multiply=1):
-        for name in self.parameter_dict.keys():
-            parameter = self.parameter_dict[name]
-            if not isinstance(parameter, Tensor):
-                raise TypeError("Not a NeuralVariable")
-            parameter.multi_grad(multiply)
-
     def build_model(self, optimizer):
         for name in self.parameter_dict.keys():
             parameter = self.parameter_dict[name]

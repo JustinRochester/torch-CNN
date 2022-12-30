@@ -22,7 +22,3 @@ class Propagatable:
     @abc.abstractmethod
     def zero_grad(self):
         pass
-
-    @abc.abstractmethod
-    def multi_grad(self, multiply=1):
-        pass

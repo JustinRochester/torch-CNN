@@ -33,10 +33,6 @@ class Sequential(Savable, Propagatable):
         for layer in self.layers:
             layer.zero_grad()
 
-    def multi_grad(self, multiply=1):
-        for layer in self.layers:
-            layer.multi_grad(multiply=multiply)
-
     def build_model(self, optimizer):
         for layer in self.layers:
             layer.build_model(optimizer)
