@@ -132,6 +132,8 @@ class Tensor:
         y=a+b;
         dL/da=dL/db=dL/dy;
         """
+        if not isinstance(other, Tensor):
+            other = Tensor(other)
         shape = Tensor._get_broadcast_shape(self, other)
         lhs = self.broadcast(shape)
         rhs = other.broadcast(shape)
@@ -171,6 +173,8 @@ class Tensor:
         )
 
     def __sub__(self, other):
+        if not isinstance(other, Tensor):
+            other = Tensor(other)
         return self + (-other)
 
     def __mul__(self, other):
@@ -179,6 +183,8 @@ class Tensor:
         dL/da=dL/dy*dy/da=dL/dy*b;
         dL/db=dL/dy*dy/db=dL/dy*a;
         """
+        if not isinstance(other, Tensor):
+            other = Tensor(other)
         shape = Tensor._get_broadcast_shape(self, other)
         lhs = self.broadcast(shape)
         rhs = other.broadcast(shape)
@@ -209,6 +215,8 @@ class Tensor:
         dL/da=dL/dy*dy/da=dL/dy/b;
         dL/db=dL/dy*dy/db=dL/dy*a*(-1/b**2);
         """
+        if not isinstance(other, Tensor):
+            other = Tensor(other)
         shape = Tensor._get_broadcast_shape(self, other)
         lhs = self.broadcast(shape)
         rhs = other.broadcast(shape)
@@ -239,6 +247,8 @@ class Tensor:
         dL/da=dL/dy@b^T;
         dL/db=a^T@dL/dy;
         """
+        if not isinstance(other, Tensor):
+            other = Tensor(other)
         if len(self.shape) != 2 or len(other.shape) != 2 or self.shape[-1] != other.shape[-2]:
             raise TypeError("This two tensor could not multiply.")
 
