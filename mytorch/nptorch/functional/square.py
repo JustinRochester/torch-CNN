@@ -2,16 +2,13 @@ from ..GPU_np import np
 from ..base.Tensor import Tensor
 
 
-def relu(x: Tensor):
-    ret = x.data
-    mask = ret <= 0
-    ret[mask] = 0
+def square(x: Tensor):
+    ret = np.square(x.data)
     if not x.requires_grad:
         return Tensor(ret)
 
     def grad_fn(grad):
-        grad[mask] = 0
-        return grad
+        return grad * x.data * 2
     return Tensor(
         data=ret,
         requires_grad=True,

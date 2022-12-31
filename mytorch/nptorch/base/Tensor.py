@@ -27,6 +27,9 @@ class Tensor:
         self.grad = np.zeros(self.shape)
         self._depend_on = depend_on
 
+    def __str__(self):
+        return 'Tensor shape : {}, data : {}'.format(self.shape, self.data)
+
     def reshape(self, shape):
         """
         :param shape: The shape this tensor will be changed to.
@@ -61,8 +64,25 @@ class Tensor:
 
         def grad_fn(grad):
             return grad.transpose(i_axis)
+
         return Tensor(
             data=self.data.transpose(*axes),
+            requires_grad=True,
+            depend_on=[(self, grad_fn)]
+        )
+
+    def T(self):
+        """
+        :return: A new tensor with transposition.
+        """
+        if not self.requires_grad:
+            return Tensor(self.data.T)
+
+        def grad_fn(grad):
+            return grad.T
+
+        return Tensor(
+            data=self.data.T,
             requires_grad=True,
             depend_on=[(self, grad_fn)]
         )
@@ -155,6 +175,11 @@ class Tensor:
             depend_on=lst,
         )
 
+    def __radd__(self, other):
+        if not isinstance(other, Tensor):
+            other = Tensor(other)
+        return other + self
+
     def __neg__(self):
         """
         y=-a;
@@ -176,6 +201,11 @@ class Tensor:
         if not isinstance(other, Tensor):
             other = Tensor(other)
         return self + (-other)
+
+    def __rsub__(self, other):
+        if not isinstance(other, Tensor):
+            other = Tensor(other)
+        return other - self
 
     def __mul__(self, other):
         """
@@ -209,6 +239,11 @@ class Tensor:
             depend_on=lst,
         )
 
+    def __rmul__(self, other):
+        if not isinstance(other, Tensor):
+            other = Tensor(other)
+        return other * self
+
     def __truediv__(self, other):
         """
         y=a/b;
@@ -241,6 +276,11 @@ class Tensor:
             depend_on=lst,
         )
 
+    def __rtruediv__(self, other):
+        if not isinstance(other, Tensor):
+            other = Tensor(other)
+        return other / self
+
     def __matmul__(self, other):
         """
         y=a@b;
@@ -271,6 +311,11 @@ class Tensor:
             requires_grad=requires_grad,
             depend_on=lst,
         )
+
+    def __rmatmul__(self, other):
+        if not isinstance(other, Tensor):
+            other = Tensor(other)
+        return other @ self
 
     def backward(self, grad=None):
         if grad is None:
