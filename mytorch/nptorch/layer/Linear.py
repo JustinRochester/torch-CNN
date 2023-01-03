@@ -19,12 +19,10 @@ class Linear(Layer):
             initial_mu=0,
             initial_std=np.sqrt(2 / in_features),
         )
-        self.weight = Tensor(
+        self.weight = Parameter(
             data=weight_initializer(shape=(in_features, out_features)),
             requires_grad=True,
         )
-        self.parameter_list.append(self.weight)
-        self.save_list.append(self.weight)
         self.bias = None
 
         if not bias:
@@ -33,12 +31,10 @@ class Linear(Layer):
             initial_mu=0,
             initial_std=np.sqrt(2 / in_features),
         )
-        self.bias = Tensor(
+        self.bias = Parameter(
             data=bias_initializer(shape=(1, out_features)),
             requires_grad=True,
         )
-        self.parameter_list.append(self.bias)
-        self.save_list.append(self.bias)
 
     def __call__(self, x: Tensor, *args, **kwargs):
         x @= self.weight

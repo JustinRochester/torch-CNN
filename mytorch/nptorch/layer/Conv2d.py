@@ -26,13 +26,11 @@ class Conv2d(Layer):
             initial_mu=0,
             initial_std=np.sqrt(2 / in_channels),
         )
-        self.filters = Tensor(
+        self.filters = Parameter(
             data=filters_initializer(shape=(out_channels, in_channels) + kernel_size),
             requires_grad=True,
         )
         self.im2col = lambda x: im2col(x, filter_shape=kernel_size, stride=stride, padding=padding)
-        self.parameter_list.append(self.filters)
-        self.save_list.append(self.filters)
         self.bias = None
 
         if not bias:
@@ -41,12 +39,10 @@ class Conv2d(Layer):
             initial_mu=0,
             initial_std=np.sqrt(2 / in_channels),
         )
-        self.bias = Tensor(
+        self.bias = Parameter(
             data=bias_initializer(shape=(1, out_channels)),
             requires_grad=True,
         )
-        self.parameter_list.append(self.bias)
-        self.save_list.append(self.bias)
 
     def __call__(self, x: Tensor, *args, **kwargs):
         x = self.im2col(x)

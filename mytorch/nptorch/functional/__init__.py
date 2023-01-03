@@ -8,3 +8,4 @@ from .sqrt import sqrt
 from .max import max
 from .min import min
 from .average import average, mean
+from .sum import sum

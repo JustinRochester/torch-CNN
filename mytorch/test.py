@@ -2,32 +2,44 @@ from nptorch.GPU_np import np
 import nptorch
 import nptorch.functional as F
 import nptorch.layer as L
-
-conv1 = L.Conv2d(3, 6, (5, 5))
-pooling1 = L.MaxPool2d((2, 2))
-conv2 = L.Conv2d(6, 16, (5, 5))
-pooling2 = L.MaxPool2d((2, 2))
-fc1 = L.Linear(16 * 5 * 5, 120)
-fc2 = L.Linear(120, 84)
-fc3 = L.Linear(84, 10)
+from nptorch.loss.CrossEntropy import CrossEntropy
+from nptorch.optim.Adam import Adam
+from nptorch.Module import Module
 
 
-def forward(x: nptorch.Tensor):
-    n = x.shape[0]
-    x = F.relu(conv1(x))
-    x = pooling1(x)
-    x = F.relu(conv2(x))
-    x = pooling2(x)
-    x = x.reshape((n, -1))
-    x = F.relu(fc1(x))
-    x = F.relu(fc2(x))
-    x = fc3(x)
-    return x
+class LeNet(Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = L.Conv2d(3, 6, (5, 5))
+        self.pooling1 = L.MaxPool2d((2, 2))
+        self.conv2 = L.Conv2d(6, 16, (5, 5))
+        self.pooling2 = L.MaxPool2d((2, 2))
+        self.fc1 = L.Linear(16 * 5 * 5, 120)
+        self.fc2 = L.Linear(120, 84)
+        self.fc3 = L.Linear(84, 10)
+
+    def forward(self, x: nptorch.Tensor):
+        n = x.shape[0]
+        x = F.relu(self.conv1(x))
+        x = self.pooling1(x)
+        x = F.relu(self.conv2(x))
+        x = self.pooling2(x)
+        x = x.reshape((n, -1))
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
 
 
 if __name__ == '__main__':
-    x = nptorch.Tensor(np.random.random((512, 3, 32, 32)), requires_grad=True)
-    y = forward(x)
-    print(y.shape)
-    y.backward()
-    print(x.shape)
+    nn = LeNet()
+    data_list = nn.get_data_list()
+    nn.load_data_list(iter(data_list))
+    data_line = []
+    for e in data_list:
+        assert isinstance(e, np.ndarray)
+        data_line += e.reshape(-1).tolist()
+    data_line.sort()
+    print(data_line)
+    print(len(data_line))
+    exit(0)
