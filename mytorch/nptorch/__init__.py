@@ -1,6 +1,5 @@
-from .base.Tensor import Tensor
+from .nn.base import *
 
 __all__ = [
-    "functional",
-    "layer",
+    "nn",
 ]

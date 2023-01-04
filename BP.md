@@ -94,20 +94,24 @@ $\displaystyle L=-\sum_i (\boldsymbol y_i\log \text{softmax}(\boldsymbol o)_i)+R
 $\displaystyle {\partial L\over \partial \text{softmax}(\boldsymbol o)_i}=-{\boldsymbol y_i\over \text{softmax}(\boldsymbol o)_i}$
 
 $$
-&{\partial \text{softmax}(\boldsymbol o)_i\over \partial \boldsymbol o_j}
-\\=&{\partial \over \partial \boldsymbol o_j}{\exp \boldsymbol o_i\over \sum_k \exp \boldsymbol o_k}
-\\=&{[i=j]\exp \boldsymbol o_i\sum_k \exp \boldsymbol o_k-\exp \boldsymbol o_i\cdot \exp \boldsymbol o_j\over (\sum_k \exp \boldsymbol o_k)^2}
-\\=&[i=j]\text{softmax}(\boldsymbol o)_i-\text{softmax}(\boldsymbol o)_i\cdot \text{softmax}(\boldsymbol o)_j
+\begin{aligned}
+    &{\partial \text{softmax}(\boldsymbol o)_i\over \partial \boldsymbol o_j}
+    \\=&{\partial \over \partial \boldsymbol o_j}{\exp \boldsymbol o_i\over \sum_k \exp \boldsymbol o_k}
+    \\=&{[i=j]\exp \boldsymbol o_i\sum_k \exp \boldsymbol o_k-\exp \boldsymbol o_i\cdot \exp \boldsymbol o_j\over (\sum_k \exp \boldsymbol o_k)^2}
+    \\=&[i=j]\text{softmax}(\boldsymbol o)_i-\text{softmax}(\boldsymbol o)_i\cdot \text{softmax}(\boldsymbol o)_j
+\end{aligned}
 $$
 
 $$
-&{\partial L\over \partial \boldsymbol o_i}
-\\=&\sum_j {\partial L\over \partial \text{softmax}(\boldsymbol o)_j}{\partial \text{softmax}(\boldsymbol o)_j\over \partial \boldsymbol o_i}
-\\=&\sum_j-{\boldsymbol y_j\over \text{softmax}(\boldsymbol o)_j}\cdot ([i=j]\text{softmax}(\boldsymbol o)_i-\text{softmax}(\boldsymbol o)_i\cdot \text{softmax}(\boldsymbol o)_j)
-\\=&-\boldsymbol y_i+\text{softmax}(\boldsymbol o)_i\cdot \sum_j \boldsymbol y_j
+\begin{aligned}
+    &{\partial L\over \partial \boldsymbol o_i}
+    \\=&\sum_j {\partial L\over \partial \text{softmax}(\boldsymbol o)_j}{\partial \text{softmax}(\boldsymbol o)_j\over \partial \boldsymbol o_i}
+    \\=&\sum_j-{\boldsymbol y_j\over \text{softmax}(\boldsymbol o)_j}\cdot ([i=j]\text{softmax}(\boldsymbol o)_i-\text{softmax}(\boldsymbol o)_i\cdot \text{softmax}(\boldsymbol o)_j)
+    \\=&-\boldsymbol y_i+\text{softmax}(\boldsymbol o)_i\cdot \sum_j \boldsymbol y_j
+\end{aligned}
 $$
 
-$\displaystyle {\partial L\over \partial \boldsymbol o}=(\boldsymbol 1^T\cdot \boldsymbol y)\cdot \text{softmax}(\boldsymbol o)-\boldsymbol y$
+$\displaystyle {\partial L\over \partial \boldsymbol o}=\text{softmax}(\boldsymbol o)-\boldsymbol y$ 
 
 ---
 
@@ -122,48 +126,59 @@ $\displaystyle \hat{\boldsymbol x}_i={\boldsymbol x_i-\boldsymbol \mu\over \sqrt
 $\boldsymbol y_i=\hat{\boldsymbol x}_i\odot \boldsymbol \gamma+\boldsymbol \beta$
 
 $$
-&{\partial C\over \partial \boldsymbol \gamma}
-\\=&\sum_i\boldsymbol e_i({\partial C\over \partial \boldsymbol \gamma})_i
-\\=&\sum_i\boldsymbol e_i\sum_j({\partial C\over \partial \boldsymbol y_j})_i({\partial \boldsymbol y_j\over \partial \boldsymbol \gamma})_i
-\\=&\sum_j{\partial C\over \partial \boldsymbol y_j}\odot\hat{\boldsymbol x}_j
+\begin{aligned}
+    &{\partial C\over \partial \boldsymbol \gamma}
+    \\=&\sum_i\boldsymbol e_i({\partial C\over \partial \boldsymbol \gamma})_i
+    \\=&\sum_i\boldsymbol e_i\sum_j({\partial C\over \partial \boldsymbol y_j})_i({\partial \boldsymbol y_j\over \partial \boldsymbol \gamma})_i
+    \\=&\sum_j{\partial C\over \partial \boldsymbol y_j}\odot\hat{\boldsymbol x}_j
+\end{aligned}
 $$
 
 $$
-&{\partial C\over \partial \boldsymbol \beta}
-\\=&\sum_i\boldsymbol e_i({\partial C\over \partial \boldsymbol \beta})_i
-\\=&\sum_i\boldsymbol e_i\sum_j({\partial C\over \partial \boldsymbol y_j})_i({\partial \boldsymbol y_j\over \partial \boldsymbol \beta})_i
-\\=&\sum_j{\partial C\over \partial \boldsymbol y_j}
+\begin{aligned}
+    &{\partial C\over \partial \boldsymbol \beta}
+    \\=&\sum_i\boldsymbol e_i({\partial C\over \partial \boldsymbol \beta})_i
+    \\=&\sum_i\boldsymbol e_i\sum_j({\partial C\over \partial \boldsymbol y_j})_i({\partial \boldsymbol y_j\over \partial \boldsymbol \beta})_i
+    \\=&\sum_j{\partial C\over \partial \boldsymbol y_j}
+\end{aligned}
 $$
 
 $$
-&{\partial C\over \partial \hat {\boldsymbol x}_p}
-\\=&\sum_i\boldsymbol e_i({\partial C\over \partial \hat {\boldsymbol x}_p})_i
-\\=&\sum_i\boldsymbol e_i\sum_j({\partial C\over \partial \boldsymbol y_j})_i({\partial \boldsymbol y_j\over \partial \hat {\boldsymbol x}_p})_i
-\\=&{\partial C\over \partial \boldsymbol y_p}\odot\boldsymbol \gamma
+\begin{aligned}
+    &{\partial C\over \partial \hat {\boldsymbol x}_p}
+    \\=&\sum_i\boldsymbol e_i({\partial C\over \partial \hat {\boldsymbol x}_p})_i
+    \\=&\sum_i\boldsymbol e_i\sum_j({\partial C\over \partial \boldsymbol y_j})_i({\partial \boldsymbol y_j\over \partial \hat {\boldsymbol x}_p})_i
+    \\=&{\partial C\over \partial \boldsymbol y_p}\odot\boldsymbol \gamma
+\end{aligned}
 $$
 
 $$
-&{\partial C\over \partial \boldsymbol \sigma^2}
-\\=&\sum_p\boldsymbol e_p({\partial C\over \partial \boldsymbol \sigma^2})_p
-\\=&\sum_p\boldsymbol e_p\sum_i({\partial C\over \partial \hat{\boldsymbol x}_i})_p\cdot ({\partial \hat{\boldsymbol x}_i\over \partial \sqrt{\boldsymbol \sigma^2+\epsilon}})_p\cdot ({\partial \sqrt{\boldsymbol \sigma^2+\epsilon}\over \partial \boldsymbol \sigma^2})_p
-\\=&\sum_p\boldsymbol e_p\sum_i({\partial C\over \partial \hat{\boldsymbol x}_i})_p\cdot (\boldsymbol x_i-\boldsymbol \mu)_p\cdot ({-1\over \boldsymbol \sigma^2+\epsilon})_p\cdot({1\over 2\sqrt{\boldsymbol \sigma^2+\epsilon}})_p
-\\=&-{1\over 2(\boldsymbol \sigma^2+\epsilon)}\odot \sum_i{\partial C\over \partial \hat{\boldsymbol x_i}}\odot \hat{\boldsymbol x}_i
+\begin{aligned}
+    &{\partial C\over \partial \boldsymbol \sigma^2}
+    \\=&\sum_p\boldsymbol e_p({\partial C\over \partial \boldsymbol \sigma^2})_p
+    \\=&\sum_p\boldsymbol e_p\sum_i({\partial C\over \partial \hat{\boldsymbol x}_i})_p\cdot ({\partial \hat{\boldsymbol x}_i\over \partial \sqrt{\boldsymbol \sigma^2+\epsilon}})_p\cdot ({\partial \sqrt{\boldsymbol \sigma^2+\epsilon}\over \partial \boldsymbol \sigma^2})_p
+    \\=&\sum_p\boldsymbol e_p\sum_i({\partial C\over \partial \hat{\boldsymbol x}_i})_p\cdot (\boldsymbol x_i-\boldsymbol \mu)_p\cdot ({-1\over \boldsymbol \sigma^2+\epsilon})_p\cdot({1\over 2\sqrt{\boldsymbol \sigma^2+\epsilon}})_p
+    \\=&-{1\over 2(\boldsymbol \sigma^2+\epsilon)}\odot \sum_i{\partial C\over \partial \hat{\boldsymbol x_i}}\odot \hat{\boldsymbol x}_i
+\end{aligned}
 $$
 
 $$
-&{\partial C\over \partial \boldsymbol \mu}
-\\=&\sum_p\boldsymbol e_p({\partial C\over \partial \boldsymbol \mu})_p
-\\=&\sum_p\boldsymbol e_p\sum_i({\partial C\over \partial \hat{\boldsymbol x}_i})_p\cdot ({\partial \hat{\boldsymbol x}_i\over \partial \boldsymbol \mu})_p+\sum_p\boldsymbol e_p({\partial C\over \partial \boldsymbol \sigma^2})_p\cdot ({\partial \boldsymbol \sigma^2\over \partial \boldsymbol \mu})_p
-\\=&-{1\over \sqrt{\boldsymbol \sigma^2+\epsilon}}\odot\sum_i{\partial C\over \partial \hat{\boldsymbol x}_i}+{\partial C\over \partial \boldsymbol \sigma^2}\odot {-2\over m}\sum_i(\boldsymbol x_i-\boldsymbol \mu)
-\\=&-{1\over \sqrt{\boldsymbol \sigma^2+\epsilon}}\odot\sum_i{\partial C\over \partial \hat{\boldsymbol x}_i}-{2\sqrt{\boldsymbol \sigma^2+\epsilon}\over m}\odot {\partial C\over \partial \boldsymbol \sigma^2}\odot \sum_i\hat{\boldsymbol x}_i
+\begin{aligned}
+    &{\partial C\over \partial \boldsymbol \mu}
+    \\=&\sum_p\boldsymbol e_p({\partial C\over \partial \boldsymbol \mu})_p
+    \\=&\sum_p\boldsymbol e_p\sum_i({\partial C\over \partial \hat{\boldsymbol x}_i})_p\cdot ({\partial \hat{\boldsymbol x}_i\over \partial \boldsymbol \mu})_p+\sum_p\boldsymbol e_p({\partial C\over \partial \boldsymbol \sigma^2})_p\cdot ({\partial \boldsymbol \sigma^2\over \partial \boldsymbol \mu})_p
+    \\=&-{1\over \sqrt{\boldsymbol \sigma^2+\epsilon}}\odot\sum_i{\partial C\over \partial \hat{\boldsymbol x}_i}+{\partial C\over \partial \boldsymbol \sigma^2}\odot {-2\over m}\sum_i(\boldsymbol x_i-\boldsymbol \mu)
+    \\=&-{1\over \sqrt{\boldsymbol \sigma^2+\epsilon}}\odot\sum_i{\partial C\over \partial \hat{\boldsymbol x}_i}-{2\sqrt{\boldsymbol \sigma^2+\epsilon}\over m}\odot {\partial C\over \partial \boldsymbol \sigma^2}\odot \sum_i\hat{\boldsymbol x}_i
+\end{aligned}
 $$
 
 $$
-
+\begin{aligned}
 &{\partial C\over \partial \boldsymbol x_i}
 \\=&\sum_p \boldsymbol e_p\cdot ({\partial C\over \partial \boldsymbol x_i})_p
 \\=&\sum_p\boldsymbol e_p\cdot [({\partial C\over \partial \hat{\boldsymbol x}_i})_p\cdot ({\partial \hat{\boldsymbol x}_i\over \partial \boldsymbol x_i})_p+({\partial C\over \partial \boldsymbol \mu})_p\cdot ({\partial \boldsymbol \mu\over \partial \boldsymbol x_i})_p+({\partial C\over \partial \boldsymbol \sigma^2})_p\cdot ({\partial  \boldsymbol \sigma^2\over \partial \boldsymbol x_i})_p]
 \\=&{\partial C\over \partial \hat{\boldsymbol x}_i}\odot {1\over \sqrt{\boldsymbol \sigma^2+\epsilon}}+{\partial C\over \partial \boldsymbol \mu}\cdot {1\over m}+{\partial C\over \partial \boldsymbol \sigma^2}\odot {2\over m}(\boldsymbol x_i-\boldsymbol \mu)
 \\=&{\partial C\over \partial \hat{\boldsymbol x}_i}\odot {1\over \sqrt{\boldsymbol \sigma^2+\epsilon}}+{\partial C\over \partial \boldsymbol \mu}\cdot {1\over m}+{2\over m}\cdot {\partial C\over \partial \boldsymbol \sigma^2}\odot \hat{\boldsymbol x}_i\odot \sqrt{\boldsymbol \sigma^2+\epsilon}
+\end{aligned}
 $$
 
