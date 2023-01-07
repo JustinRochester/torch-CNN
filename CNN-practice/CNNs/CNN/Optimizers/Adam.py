@@ -15,7 +15,7 @@ class AdamOptimizer(Optimizer):
     def append(self, parameter, alpha=0):
         super().append(parameter, alpha)
         self.first_moment.append(np.zeros(parameter.shape))
-        self.second_moment.append(np.asarray([0.0]))
+        self.second_moment.append(np.zeros(parameter.shape))
 
     def update(self, learning_rate=1e-3):
         self.pow_beta1 *= self.beta1
@@ -24,7 +24,7 @@ class AdamOptimizer(Optimizer):
             value, grad = self.parameter_list[i].value, self.parameter_list[i].grad
             grad += self.alpha_list[i] * value
             self.first_moment[i] = self.beta1 * self.first_moment[i] + (1 - self.beta1) * grad
-            self.second_moment[i] = self.beta2 * self.second_moment[i] + (1 - self.beta2) * np.sum(np.square(grad))
+            self.second_moment[i] = self.beta2 * self.second_moment[i] + (1 - self.beta2) * np.square(grad)
             first_unbias = self.first_moment[i] / (1 - self.pow_beta1)
             second_unbias = self.second_moment[i] / (1 - self.pow_beta2)
             value -= learning_rate * first_unbias / (np.sqrt(second_unbias) + 1e-8)
