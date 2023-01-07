@@ -5,6 +5,18 @@ class Module:
     def __init__(self):
         self.parameter_list = []
         self.save_list = []
+        self.layer_list = []
+        self.mode = 'train'
+
+    def train_mode(self):
+        self.mode = 'train'
+        for layer in self.layer_list:
+            layer.train_mode()
+
+    def predict_mode(self):
+        self.mode = 'predict'
+        for layer in self.layer_list:
+            layer.predict_mode()
 
     def parameters(self):
         return self.parameter_list
@@ -17,6 +29,7 @@ class Module:
         elif isinstance(value, Module):
             self.parameter_list += value.parameter_list
             self.save_list.append(value)
+            self.layer_list.append(value)
 
     def get_data_list(self):
         data_list = []

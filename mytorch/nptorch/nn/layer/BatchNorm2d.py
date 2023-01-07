@@ -1,7 +1,10 @@
 from mytorch.nptorch.GPU_np import np
 from ..base import *
-from ..functional import batch_normalization
+from ..functional import batch_normalization, sqrt
 from .Layer import Layer
+
+
+eps = 1e-8
 
 
 class BatchNorm2d(Layer):
@@ -39,7 +42,10 @@ class BatchNorm2d(Layer):
         self.save_list.append(self.running_sigma2)
 
     def __call__(self, x: Tensor, *args, **kwargs):
-        x, sampling_mu, sampling_sigma2 = batch_normalization(x, axis=(0, 2, 3))
-        self.running_mu = self.running_mu * (Tensor(1) - self.rho) + sampling_mu * self.rho
-        self.running_sigma2 = self.running_sigma2 * (Tensor(1) - self.rho) + sampling_sigma2 * self.rho
+        if self.mode == 'train':
+            x, sampling_mu, sampling_sigma2 = batch_normalization(x, axis=(0, 2, 3))
+            self.running_mu = self.running_mu * (Tensor(1) - self.rho) + sampling_mu * self.rho
+            self.running_sigma2 = self.running_sigma2 * (Tensor(1) - self.rho) + sampling_sigma2 * self.rho
+        else:
+            x = (x - self.running_mu) / sqrt(self.running_sigma2 + eps)
         return x * self.gamma + self.beta
