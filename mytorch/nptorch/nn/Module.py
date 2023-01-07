@@ -1,19 +1,23 @@
 from .base import *
+from .interface import Savable
 
 
-class Module:
+class Module(Savable):
     def __init__(self):
         self.parameter_list = []
-        self.save_list = []
         self.layer_list = []
         self.mode = 'train'
 
     def train_mode(self):
+        if self.mode == 'train':
+            return
         self.mode = 'train'
         for layer in self.layer_list:
             layer.train_mode()
 
     def predict_mode(self):
+        if self.mode == 'predict':
+            return
         self.mode = 'predict'
         for layer in self.layer_list:
             layer.predict_mode()
@@ -25,24 +29,13 @@ class Module:
         self.__dict__[key] = value
         if type(value) is Parameter:
             self.parameter_list.append(value)
-            self.save_list.append(value)
         elif isinstance(value, Module):
             self.parameter_list += value.parameter_list
-            self.save_list.append(value)
             self.layer_list.append(value)
 
     def get_data_list(self):
-        data_list = []
-        for save_element in self.save_list:
-            if isinstance(save_element, Module):
-                data_list += save_element.get_data_list()
-            else:
-                data_list.append(save_element.data)
-        return data_list
+        return [parameter.data for parameter in self.parameter_list]
 
     def load_data_list(self, data_iter):
-        for save_element in self.save_list:
-            if isinstance(save_element, Module):
-                save_element.load_data_list(data_iter)
-            else:
-                save_element.data = next(data_iter)
+        for parameter in self.parameter_list:
+            parameter.data[:] = next(data_iter)

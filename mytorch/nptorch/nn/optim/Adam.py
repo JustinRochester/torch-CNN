@@ -46,3 +46,21 @@ class Adam(Optimizer):
             second_unbias = second_momentum / (1 - self.second_beta_pow)
             pace = self.learning_rate * first_unbias / np.sqrt(second_unbias + eps)
             data -= pace
+
+    def get_data_list(self):
+        return super().get_data_list() +\
+                self.first_momentum + \
+                self.second_momentum + \
+                [self.first_beta, self.second_beta] + \
+                [self.first_beta_pow, self.second_beta_pow]
+
+    def load_data_list(self, data_iter):
+        super().load_data_list(data_iter)
+        for momentum in self.first_momentum:
+            momentum[:] = next(data_iter)
+        for momentum in self.second_momentum:
+            momentum[:] = next(data_iter)
+        self.first_beta[:] = next(data_iter)
+        self.second_beta[:] = next(data_iter)
+        self.first_beta_pow[:] = next(data_iter)
+        self.second_beta_pow[:] = next(data_iter)

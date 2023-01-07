@@ -32,3 +32,12 @@ class RMSProp(Optimizer):
 
             pace = self.learning_rate * grad / np.sqrt(second_momentum + eps)
             data -= pace
+
+    def get_data_list(self):
+        return super().get_data_list() + self.second_momentum + [self.second_beta]
+
+    def load_data_list(self, data_iter):
+        super().load_data_list(data_iter)
+        for momentum in self.second_momentum:
+            momentum[:] = next(data_iter)
+        self.second_beta[:] = next(data_iter)

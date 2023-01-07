@@ -29,3 +29,12 @@ class Momentum_SGD(Optimizer):
 
             pace = self.learning_rate * first_momentum
             data -= pace
+
+    def get_data_list(self):
+        return super().get_data_list() + self.first_momentum + [self.first_beta]
+
+    def load_data_list(self, data_iter):
+        super().load_data_list(data_iter)
+        for momentum in self.first_momentum:
+            momentum[:] = next(data_iter)
+        self.first_beta[:] = next(data_iter)

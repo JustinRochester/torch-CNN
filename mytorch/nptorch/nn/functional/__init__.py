@@ -10,3 +10,4 @@ from .min import min
 from .average import average, mean
 from .sum import sum
 from .batch_normalization import batch_normalization
+from .abs import abs

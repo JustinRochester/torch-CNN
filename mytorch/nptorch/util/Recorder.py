@@ -12,16 +12,15 @@ class Recorder:
     def set_path(self, path=None):
         self.save_path = path
 
-    def save(self, filename, data):
+    def __save(self, filename, data):
         if self.save_path is None:
             return
-        if not os.path.exists(self.save_path):
-            os.mkdir(self.save_path)
+        os.makedirs(self.save_path, exist_ok=True)
         filename = os.path.join(self.save_path, filename + '.pkl')
         with open(filename, 'wb') as file:
             pickle.dump(data, file)
 
-    def load(self, filename):
+    def __load(self, filename):
         filename = os.path.join(self.save_path, filename + '.pkl')
         data = None
         if self.save_path is None or not os.path.exists(filename):
@@ -30,7 +29,8 @@ class Recorder:
             data = pickle.load(file)
         return data
 
-    def clear_version(self, version, filename):
+    def __clear_version(self, version, filename):
+        os.makedirs(self.save_path, exist_ok=True)
         lst = os.listdir(self.save_path)
         del_lst = []
         for file in lst:
@@ -45,15 +45,15 @@ class Recorder:
             os.remove(os.path.join(self.save_path, file))
 
     def save_version(self, version, data):
-        self.clear_version(version=version, filename='weight')
-        self.save(
+        self.__clear_version(version=version, filename='weight')
+        self.__save(
             filename='weight%d' % version,
             data=data
         )
 
     def save_log(self, version, *data_list):
-        self.clear_version(version=version, filename='log')
-        self.save(
+        self.__clear_version(version=version, filename='log')
+        self.__save(
             filename='log%d' % version,
             data=data_list
         )
@@ -68,13 +68,13 @@ class Recorder:
             return os.remove(filename)
 
     def save_best(self, data):
-        self.save(
+        self.__save(
             filename='best',
             data=data
         )
 
     def load_version(self, version):
-        data = self.load(
+        data = self.__load(
             filename='weight%d' % version
         )
         for i in range(len(data)):
@@ -82,12 +82,12 @@ class Recorder:
         return data
 
     def load_log(self, version):
-        return self.load(
+        return self.__load(
             filename='log%d' % version
         )
 
     def load_best(self):
-        data = self.load(
+        data = self.__load(
             filename='best'
         )
         for i in range(len(data)):

@@ -1,7 +1,8 @@
 import abc
+from ..interface import Savable
 
 
-class Optimizer:
+class Optimizer(Savable):
     def __init__(self,
                  parameter_list=[],
                  learning_rate=1e-3,
@@ -14,3 +15,9 @@ class Optimizer:
     @abc.abstractmethod
     def step(self):
         self.learning_rate = self.learning_rate_function(self.learning_rate)
+
+    def get_data_list(self):
+        return []
+
+    def load_data_list(self, data_iter):
+        pass

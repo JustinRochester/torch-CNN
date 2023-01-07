@@ -1,7 +1,9 @@
+import os
+from time import perf_counter as clock
 from mytorch import nptorch
 from nptorch.GPU_np import np
 from nptorch import nn
-from nptorch.util import DataLoader
+from nptorch.util import DataLoader, Recorder
 from nptorch.nn import functional as F
 from load_MNIST import read_data
 
@@ -54,10 +56,50 @@ class LeNet(nn.Module):
         return x
 
 
+def train_epoch(turn: int, total_turn: int, net, loss_function, optimizer, train_data):
+    epoch_start_time = clock()
+    net.train_mode()
+    finished = 0
+    length = train_data.len
+    for images, labels in train_data:
+        now = train_data.select_position
+        predict = net.forward(images)
+        loss = loss_function(predict, labels)
+        loss.backward()
+        optimizer.step()
+        loss.zero_grad()
+        average_loss = float(loss.data) / (now - finished)
+        print('epoch {}/{} batch {}/{}, loss={}'.format(turn, total_turn, now, length, average_loss))
+        finished = now
+    print('epoch {}/{} cost time: {} second(s)'.format(turn, total_turn, clock() - epoch_start_time))
+
+
+def evaluate(net, data):
+    net.predict_mode()
+    acc = 0
+    for images, labels in data:
+        predict = net.forward(images).data
+        predict = predict.argmax(axis=1)
+        acc += np.sum(predict == labels.data)
+    return acc * 100 / data.len
+
+
 def work():
     net = LeNet()
+    recorder = Recorder()
+    recorder_path = os.path.split(__file__)[-1]
+    recorder_path = '.'.join(recorder_path.split('.')[:-1])
+    recorder_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "weight",
+        recorder_path,
+    )
+    recorder.set_path(recorder_path)
 
     train_images, train_labels, test_images, test_labels = read_data()
+    train_evaluate_data = DataLoader(train_images, train_labels, batch_size=2048, shuffle=False)
+    test_data = DataLoader(test_images, test_labels, batch_size=2048, shuffle=False)
+
     class_num = 10
 
     tmp = np.zeros((train_images.shape[0], class_num))
@@ -65,33 +107,28 @@ def work():
     train_labels = tmp
 
     train_data = DataLoader(train_images, train_labels, batch_size=1024)
-    test_data = DataLoader(test_images, test_labels, batch_size=1024, shuffle=False)
 
     loss_function = nn.CrossEntropy()
-    optimizer = nn.Adam(net.parameters(), learning_rate=1e-4)
+    optimizer = nn.Adam(net.parameters(), learning_rate=1e-3)
 
     epoch_number = 100
 
-    for t in range(epoch_number):
-        net.train_mode()
-        finished = 0
-        for images, labels in train_data:
-            now = train_data.select_position
-            predict = net.forward(images)
-            loss = loss_function(predict, labels)
-            loss.backward()
-            optimizer.step()
-            loss.zero_grad()
-            print('epoch {} batch {}, loss={}'.format(t + 1, now, float(loss.data) / (now - finished)))
-            finished = now
+    for t in range(1, epoch_number+1):
+        train_epoch(t, epoch_number, net, loss_function, optimizer, train_data)
+        recorder.save_version(
+            version=t,
+            data=net.get_data_list() + optimizer.get_data_list()
+        )
 
-        net.predict_mode()
-        acc = 0
-        for images, labels in test_data:
-            predict = net.forward(images).data
-            predict = predict.argmax(axis=1)
-            acc += np.sum(predict == labels.data)
-        print('epoch {}, acc={}%'.format(t + 1, acc * 100 / test_data.len))
+        now = clock()
+        train_acc = evaluate(net, train_evaluate_data)
+        print('cost time in predict train_data: {} second(s)'.format(clock() - now))
+
+        now = clock()
+        test_acc = evaluate(net, test_data)
+        print('cost time in predict test_data: {} second(s)'.format(clock() - now))
+
+        print('epoch {}/{}, train data accuracy={}, test data accuracy={}'.format(t, epoch_number, train_acc, test_acc))
 
 
 if __name__ == '__main__':

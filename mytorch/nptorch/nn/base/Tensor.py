@@ -281,6 +281,46 @@ class Tensor:
             other = Tensor(other)
         return other / self
 
+    def __pow__(self, power, modulo=None):
+        """
+        y=a**b;
+        dL/da=dL/dy*dy/da=dL/dy * b * a**(b-1);
+        dL/db=dL/dy*dy/db=dL/dy * a**b * ln(a);
+        """
+        if not isinstance(power, Tensor):
+            power = Tensor(power)
+        shape = Tensor._get_broadcast_shape(self, power)
+        lhs = self.broadcast(shape)
+        rhs = power.broadcast(shape)
+
+        tmp = np.power(lhs.data, rhs.data - 1)
+        ret = tmp * lhs.data
+
+        def grad_fn_l(grad):
+            return grad * rhs.data * tmp
+
+        def grad_fn_r(grad):
+            return grad * ret * np.log(lhs.data)
+
+        lst = []
+        requires_grad = False
+        if lhs.requires_grad:
+            lst.append((lhs, grad_fn_l))
+            requires_grad = True
+        if rhs.requires_grad:
+            lst.append((rhs, grad_fn_r))
+            requires_grad = True
+        return Tensor(
+            data=ret,
+            requires_grad=requires_grad,
+            depend_on=lst,
+        )
+
+    def __rpow__(self, other):
+        if not isinstance(other, Tensor):
+            other = Tensor(other)
+        return other ** self
+
     def __matmul__(self, other):
         """
         y=a@b;

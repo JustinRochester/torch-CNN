@@ -2,7 +2,6 @@ from mytorch.nptorch.GPU_np import np
 from ..base import *
 from .Optimizer import Optimizer
 
-
 eps = 1e-8
 
 
@@ -30,3 +29,12 @@ class AdaGrad(Optimizer):
             second_momentum += np.square(grad)
             pace = self.learning_rate * grad / np.sqrt(second_momentum + eps)
             data -= pace
+
+    def get_data_list(self):
+        return super().get_data_list() + self.second_momentum + [self.second_beta]
+
+    def load_data_list(self, data_iter):
+        super().load_data_list(data_iter)
+        for momentum in self.second_momentum:
+            momentum[:] = next(data_iter)
+        self.second_beta[:] = next(data_iter)

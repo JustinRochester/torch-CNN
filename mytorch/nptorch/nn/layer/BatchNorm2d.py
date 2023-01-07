@@ -23,12 +23,12 @@ class BatchNorm2d(Layer):
             initial_mu=0,
             initial_std=0,
         )
-        self.running_mu = Tensor(zeros_initializer(shape=(1, channels, 1, 1)))
+        self.running_mu = Parameter(zeros_initializer(shape=(1, channels, 1, 1)))
         ones_initializer = Initializer(
             initial_mu=1,
             initial_std=0,
         )
-        self.running_sigma2 = Tensor(ones_initializer(shape=(1, channels, 1, 1)))
+        self.running_sigma2 = Parameter(ones_initializer(shape=(1, channels, 1, 1)))
         self.gamma = Parameter(
             data=ones_initializer(shape=(1, channels, 1, 1)),
             requires_grad=True,
@@ -37,9 +37,6 @@ class BatchNorm2d(Layer):
             data=zeros_initializer(shape=(1, channels, 1, 1)),
             requires_grad=True,
         )
-
-        self.save_list.append(self.running_mu)
-        self.save_list.append(self.running_sigma2)
 
     def __call__(self, x: Tensor, *args, **kwargs):
         if self.mode == 'train':
