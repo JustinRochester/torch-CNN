@@ -50,9 +50,9 @@ def work():
     test_data = DataLoader(test_images, test_labels, batch_size=1024, shuffle=False)
 
     loss_function = nn.CrossEntropy()
-    optimizer = nn.Adam(net.parameters(), learning_rate=1e-1)
+    optimizer = nn.Adam(net.parameters(), learning_rate=1e-4)
 
-    epoch_number = 10
+    epoch_number = 50
 
     for t in range(epoch_number):
         finished = 0

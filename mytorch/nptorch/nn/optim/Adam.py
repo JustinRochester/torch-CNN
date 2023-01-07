@@ -25,7 +25,7 @@ class Adam(Optimizer):
         self.second_moment = []
         for e in self.parameter_list:
             self.first_moment.append(Tensor(np.zeros(e.shape)))
-            self.second_moment.append(Tensor(0.0))
+            self.second_moment.append(Tensor(np.zeros(e.shape)))
 
     def step(self):
         self.first_beta_pow *= self.first_beta
@@ -41,9 +41,9 @@ class Adam(Optimizer):
             first_moment *= self.first_beta
             first_moment += (1 - self.first_beta) * grad
             second_moment *= self.second_beta
-            second_moment += (1 - self.second_beta) * Tensor(np.sum(np.square(grad)))
+            second_moment += (1 - self.second_beta) * Tensor(np.square(grad))
 
             first_unbias = first_moment / (1 - self.first_beta_pow)
             second_unbias = second_moment / (1 - self.second_beta_pow)
-            pace = first_unbias / sqrt(second_unbias + eps)
+            pace = self.learning_rate * first_unbias / sqrt(second_unbias + eps)
             e.data -= pace.data
