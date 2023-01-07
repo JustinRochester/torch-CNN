@@ -1,9 +1,9 @@
 from mytorch import nptorch
-from ..nptorch.GPU_np import np
-from ..nptorch import nn
-from ..nptorch.util import DataLoader
-import mytorch.nptorch.nn.functional as F
-from .load_data import read_data
+from nptorch.GPU_np import np
+from nptorch import nn
+from nptorch.util import DataLoader
+from nptorch.nn import functional as F
+from load_MNIST import read_data
 
 
 class LeNet(nn.Module):
@@ -50,9 +50,9 @@ def work():
     test_data = DataLoader(test_images, test_labels, batch_size=1024, shuffle=False)
 
     loss_function = nn.CrossEntropy()
-    optimizer = nn.Adam(net.parameters(), learning_rate=1e-4)
+    optimizer = nn.Adam(net.parameters(), learning_rate=1e-3)
 
-    epoch_number = 50
+    epoch_number = 5
 
     for t in range(epoch_number):
         finished = 0
@@ -63,11 +63,16 @@ def work():
             loss.backward()
             optimizer.step()
             loss.zero_grad()
-            print('epoch {} batch {}, loss={}'.format(t+1, now, float(loss.data)/(now - finished)))
+            print('epoch {} batch {}, loss={}'.format(t + 1, now, float(loss.data) / (now - finished)))
             finished = now
         acc = 0
         for images, labels in test_data:
             predict = net.forward(images).data
             predict = predict.argmax(axis=1)
             acc += np.sum(predict == labels.data)
-        print('epoch {}, acc={}%'.format(t+1, acc*100/test_data.len))
+        print('epoch {}, acc={}%'.format(t + 1, acc * 100 / test_data.len))
+
+
+if __name__ == '__main__':
+    work()
+    exit(0)
