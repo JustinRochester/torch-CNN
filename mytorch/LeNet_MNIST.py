@@ -87,12 +87,12 @@ def evaluate(net, data):
 def work():
     net = LeNet()
     recorder = Recorder()
-    recorder_path = os.path.split(__file__)[-1]
-    recorder_path = '.'.join(recorder_path.split('.')[:-1])
     recorder_path = os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
         "weight",
-        recorder_path,
+        ".".join(
+            os.path.split(__file__)[-1].split('.')[:-1]
+        ),
     )
     recorder.set_path(recorder_path)
 
@@ -101,17 +101,18 @@ def work():
     test_data = DataLoader(test_images, test_labels, batch_size=2048, shuffle=False)
 
     class_num = 10
-
     tmp = np.zeros((train_images.shape[0], class_num))
     tmp[np.arange(train_images.shape[0]), train_labels] = 1
     train_labels = tmp
-
     train_data = DataLoader(train_images, train_labels, batch_size=1024)
 
-    loss_function = nn.CrossEntropy()
+    loss_function = nn.LossCollector(
+        nn.CrossEntropySoftmax_Loss(),
+        (nn.Regular_2_Loss(net.parameters()), 1e-1)
+    )
     optimizer = nn.Adam(net.parameters(), learning_rate=1e-3)
 
-    epoch_number = 100
+    epoch_number = 10
 
     for t in range(1, epoch_number+1):
         train_epoch(t, epoch_number, net, loss_function, optimizer, train_data)

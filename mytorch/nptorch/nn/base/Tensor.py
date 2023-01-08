@@ -1,3 +1,4 @@
+from queue import Queue
 from mytorch.nptorch.GPU_np import np
 
 
@@ -25,7 +26,8 @@ class Tensor:
         self.shape = data.shape
         self.requires_grad = requires_grad
         self.grad = np.zeros(self.shape)
-        self._depend_on = depend_on
+        self.depend_on = depend_on
+        self.in_degree = 0
 
     def __str__(self):
         return 'Tensor shape : {}, data : {}'.format(self.shape, self.data)
@@ -357,15 +359,29 @@ class Tensor:
             other = Tensor(other)
         return other @ self
 
-    def backward(self, grad=None):
-        if grad is None:
-            grad = np.ones(self.shape)
-        self.grad += grad
-        for tensor, grad_fn in self._depend_on:
-            tensor.backward(grad_fn(grad))
+    def backward(self, is_source=True):
+        for tensor, grad_fn in self.depend_on:
+            tensor.in_degree += 1
+            if tensor.in_degree == 1:
+                tensor.backward(is_source=False)
+        if is_source:
+            DAG_solve(self, np.ones(self.shape))
 
     def zero_grad(self):
         self.grad = np.zeros(self.shape)
-        for tensor, grad_fn in self._depend_on:
+        for tensor, grad_fn in self.depend_on:
             tensor.zero_grad()
-        self._depend_on = []
+        self.depend_on = []
+
+
+def DAG_solve(x: Tensor, grad: np.ndarray):
+    q = Queue()
+    x.grad += grad
+    q.put(x)
+    while not q.empty():
+        x = q.get()
+        for tensor, grad_fn in x.depend_on:
+            tensor.grad += grad_fn(x.grad)
+            tensor.in_degree -= 1
+            if tensor.in_degree == 0:
+                q.put(tensor)
