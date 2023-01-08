@@ -8,7 +8,7 @@ class Lp_Loss(LossFunction):
     Calculate the loss function value with predict output and labels.
     It will calculate the L-p-distance between predict output and labels(p isn't infinite and p isn't 0).
     It calculates with the equation:
-    L_p_loss = sum(|predict - labels| ** p) ** (1/p)
+    L_p_loss = sum(|predict - labels| ** p) ** (1/p).
     """
 
     def __init__(self, p=1):
@@ -48,7 +48,7 @@ class L1_Loss(Lp_Loss):
     Calculate the loss function value with predict output and labels.
     It will calculate the L-1-distance between predict output and labels.
     It calculates with the equation:
-    L_1_loss = |predict - labels|
+    L_1_loss = |predict - labels|.
     """
 
     def __init__(self):
@@ -63,7 +63,7 @@ class L2_Loss(Lp_Loss):
     Calculate the loss function value with predict output and labels.
     It will calculate the L-2-distance between predict output and labels.
     It calculates with the equation:
-    L_2_loss = sum( |predict - labels|**2 )**(1/2)
+    L_2_loss = sum( |predict - labels|**2 )**(1/2).
     """
 
     def __init__(self):

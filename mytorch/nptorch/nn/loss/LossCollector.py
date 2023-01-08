@@ -6,8 +6,8 @@ from ..base import *
 class LossCollector(LossFunction):
     """
     Collect a set of loss functions and their coefficients.
-    It collects by a tuple like (loss functions: LossFunction, coefficient: Tensor)
-    Each coefficient in the tuple, defaults by Tensor(1)
+    It collects by a tuple like (loss functions: LossFunction, coefficient: Tensor).
+    Each coefficient in the tuple, defaults by Tensor(1).
     """
     def __init__(self, *args):
         super().__init__()

@@ -30,7 +30,7 @@ class CrossEntropySoftmax_Loss(LossFunction):
     Calculate the loss function value with neural network's predict output and labels.
     It will transform predict output into softmax(predict).
     Then it will calculate cross entropy with softmax(predict) and labels by the equation:
-    cross_entropy = -log( softmax(predict) )*labels
+    cross_entropy = -log( softmax(predict) )*labels.
     """
     def __init__(self):
         super().__init__()

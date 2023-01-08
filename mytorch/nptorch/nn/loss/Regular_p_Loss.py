@@ -6,7 +6,7 @@ from .LossFunction import LossFunction
 class Regular_p_Loss(LossFunction):
     """
     Calculate the regular loss with power p(p isn't infinite).
-    It accepts a list of parameters, calculate loss with sum(|parameter weight|**p)
+    It accepts a list of parameters, calculate loss with sum(|parameter weight|**p).
     """
     def __init__(self, parameter_list=[], p=2):
         super().__init__()
@@ -21,10 +21,18 @@ class Regular_p_Loss(LossFunction):
 
 
 class Regular_1_Loss(Regular_p_Loss):
+    """
+    Calculate the regular loss with power 1.
+    It accepts a list of parameters, calculate loss with sum(|parameter weight|**1).
+    """
     def __init__(self, parameter_list=[]):
         super().__init__(parameter_list, 1)
 
 
 class Regular_2_Loss(Regular_p_Loss):
+    """
+    Calculate the regular loss with power 2.
+    It accepts a list of parameters, calculate loss with sum(|parameter weight|**2).
+    """
     def __init__(self, parameter_list=[]):
         super().__init__(parameter_list, 2)

@@ -368,7 +368,7 @@ class Tensor:
             DAG_solve(self, np.ones(self.shape))
 
     def zero_grad(self):
-        self.grad = np.zeros(self.shape)
+        self.grad[:] = np.zeros(self.shape)
         for tensor, grad_fn in self.depend_on:
             tensor.zero_grad()
         self.depend_on = []

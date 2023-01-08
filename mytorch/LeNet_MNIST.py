@@ -56,11 +56,17 @@ class LeNet(nn.Module):
         return x
 
 
-def train_epoch(turn: int, total_turn: int, net, loss_function, optimizer, train_data):
+def train_epoch(
+        turn: int, total_turn: int,
+        net: nn.Module,
+        loss_function: nn.LossFunction,
+        optimizer: nn.Optimizer,
+        train_data: DataLoader):
     epoch_start_time = clock()
     net.train_mode()
     finished = 0
     length = train_data.len
+    loss_list = []
     for images, labels in train_data:
         now = train_data.select_position
         predict = net.forward(images)
@@ -69,9 +75,11 @@ def train_epoch(turn: int, total_turn: int, net, loss_function, optimizer, train
         optimizer.step()
         loss.zero_grad()
         average_loss = float(loss.data) / (now - finished)
+        loss_list.append(average_loss)
         print('epoch {}/{} batch {}/{}, loss={}'.format(turn, total_turn, now, length, average_loss))
         finished = now
     print('epoch {}/{} cost time: {} second(s)'.format(turn, total_turn, clock() - epoch_start_time))
+    return loss_list
 
 
 def evaluate(net, data):
@@ -112,9 +120,9 @@ def work():
     )
     optimizer = nn.Adam(net.parameters(), learning_rate=1e-3)
 
-    epoch_number = 10
+    epoch_number = 100
 
-    for t in range(1, epoch_number+1):
+    for t in range(1, epoch_number + 1):
         train_epoch(t, epoch_number, net, loss_function, optimizer, train_data)
         recorder.save_version(
             version=t,
