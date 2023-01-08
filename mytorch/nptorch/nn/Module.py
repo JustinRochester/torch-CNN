@@ -1,3 +1,5 @@
+import abc
+
 from .base import *
 from .interface import Savable
 
@@ -32,6 +34,13 @@ class Module(Savable):
         elif isinstance(value, Module):
             self.parameter_list += value.parameter_list
             self.layer_list.append(value)
+
+    @abc.abstractmethod
+    def forward(self, x: Tensor):
+        pass
+
+    def __call__(self, *args, **kwargs):
+        return self.forward(args[0])
 
     def get_data_list(self):
         return [parameter.data for parameter in self.parameter_list]

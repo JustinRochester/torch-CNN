@@ -13,46 +13,45 @@ class LeNet(nn.Module):
         super().__init__()
         self.bn0 = nn.BatchNorm2d(1)
 
-        self.conv1 = nn.Conv2d(1, 6, (5, 5), padding=2, bias=False)
-        self.bn1 = nn.BatchNorm2d(6)
-        self.pooling1 = nn.MaxPool2d((2, 2))
+        self.conv_seq1 = nn.Sequential(
+            nn.Conv2d(1, 6, (5, 5), padding=2, bias=False),
+            nn.BatchNorm2d(6),
+            nn.ReLu(),
+            nn.MaxPool2d((2, 2)),
+        )
 
-        self.conv2 = nn.Conv2d(6, 16, (5, 5), bias=False)
-        self.bn2 = nn.BatchNorm2d(16)
-        self.pooling2 = nn.MaxPool2d((2, 2))
+        self.conv_seq2 = nn.Sequential(
+            nn.Conv2d(6, 16, (5, 5), bias=False),
+            nn.BatchNorm2d(16),
+            nn.ReLu(),
+            nn.MaxPool2d((2, 2)),
+        )
 
-        self.fc1 = nn.Linear(16 * 5 * 5, 120, bias=False)
-        self.dropout1 = nn.Dropout()
-        self.bn3 = nn.BatchNorm1d(120)
+        self.fc_seq1 = nn.Sequential(
+            nn.Linear(16 * 5 * 5, 120, bias=False),
+            nn.Dropout(),
+            nn.BatchNorm1d(120),
+            nn.ReLu(),
+        )
 
-        self.fc2 = nn.Linear(120, 84, bias=False)
-        self.dropout2 = nn.Dropout()
-        self.bn4 = nn.BatchNorm1d(84)
+        self.fc_seq2 = nn.Sequential(
+            nn.Linear(120, 84, bias=False),
+            nn.Dropout(),
+            nn.BatchNorm1d(84),
+            nn.ReLu(),
+        )
 
-        self.fc3 = nn.Linear(84, 10)
+        self.fc_output = nn.Linear(84, 10)
 
     def forward(self, x: nptorch.Tensor):
         n = x.shape[0]
         x = self.bn0(x)
-
-        x = self.bn1(self.conv1(x))
-        x = F.relu(x)
-        x = self.pooling1(x)
-
-        x = self.bn2(self.conv2(x))
-        x = F.relu(x)
-        x = self.pooling2(x)
-
+        x = self.conv_seq1(x)
+        x = self.conv_seq2(x)
         x = x.reshape((n, -1))
-        x = self.bn3(self.fc1(x))
-        x = self.dropout1(x)
-        x = F.relu(x)
-
-        x = self.bn4(self.fc2(x))
-        x = self.dropout2(x)
-        x = F.relu(x)
-
-        x = self.fc3(x)
+        x = self.fc_seq1(x)
+        x = self.fc_seq2(x)
+        x = self.fc_output(x)
         return x
 
 
@@ -69,7 +68,7 @@ def train_epoch(
     loss_list = []
     for images, labels in train_data:
         now = train_data.select_position
-        predict = net.forward(images)
+        predict = net(images)
         loss = loss_function(predict, labels)
         loss.backward()
         optimizer.step()
@@ -86,7 +85,7 @@ def evaluate(net, data):
     net.predict_mode()
     acc = 0
     for images, labels in data:
-        predict = net.forward(images).data
+        predict = net(images).data
         predict = predict.argmax(axis=1)
         acc += np.sum(predict == labels.data)
     return acc * 100 / data.len
@@ -120,7 +119,7 @@ def work():
     )
     optimizer = nn.Adam(net.parameters(), learning_rate=1e-3)
 
-    epoch_number = 100
+    epoch_number = 10
 
     for t in range(1, epoch_number + 1):
         train_epoch(t, epoch_number, net, loss_function, optimizer, train_data)

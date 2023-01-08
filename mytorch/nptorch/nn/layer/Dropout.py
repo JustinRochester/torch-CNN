@@ -12,7 +12,7 @@ class Dropout(Layer):
         super().__init__()
         self.probability = probability
 
-    def __call__(self, x: Tensor, *args, **kwargs):
+    def forward(self, x: Tensor):
         if self.mode == 'train':
             dropout_mask = Tensor(np.random.uniform(0, 1, x.shape) < self.probability.data)
             return x * dropout_mask

@@ -22,7 +22,7 @@ class Pool2d(Layer):
         :return: shape = (N, C, OH, OW)
         """
 
-    def __call__(self, x: Tensor, *args, **kwargs):
+    def forward(self, x: Tensor):
         n, c, ih, iw = x.shape
         ph, pw = self.pooling_stride
         oh, ow = ih // ph, iw // pw

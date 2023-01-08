@@ -36,7 +36,7 @@ class Linear(Layer):
             requires_grad=True,
         )
 
-    def __call__(self, x: Tensor, *args, **kwargs):
+    def forward(self, x: Tensor):
         x @= self.weight
         if self.bias is not None:
             x += self.bias

@@ -38,7 +38,7 @@ class BatchNorm2d(Layer):
             requires_grad=True,
         )
 
-    def __call__(self, x: Tensor, *args, **kwargs):
+    def forward(self, x: Tensor):
         if self.mode == 'train':
             x, sampling_mu, sampling_sigma2 = batch_normalization(x, axis=(0, 2, 3))
             self.running_mu = self.running_mu * (Tensor(1) - self.rho) + sampling_mu * self.rho

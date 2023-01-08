@@ -44,7 +44,7 @@ class Conv2d(Layer):
             requires_grad=True,
         )
 
-    def __call__(self, x: Tensor, *args, **kwargs):
+    def forward(self, x: Tensor):
         x = self.im2col(x)
         n, oh, ow, _ = x.shape
         x = x.reshape((n * oh * ow, -1)) @ self.filters.reshape((self.out_channels, -1)).T()

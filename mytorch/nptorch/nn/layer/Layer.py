@@ -20,7 +20,3 @@ class Layer(Module):
         super().predict_mode()
         for parameter in self.parameter_list:
             parameter.requires_grad = False
-
-    @abc.abstractmethod
-    def __call__(self, x: Tensor, *args, **kwargs):
-        pass
