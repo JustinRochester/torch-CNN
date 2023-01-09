@@ -1,4 +1,4 @@
-use_gpu = True
+use_gpu = False
 
 if use_gpu:
     import cupy as np

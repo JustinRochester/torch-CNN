@@ -1,6 +1,6 @@
 import os
 from time import perf_counter as clock
-from mytorch import nptorch
+import nptorch
 from nptorch.GPU_np import np
 from nptorch import nn
 from nptorch.util import DataLoader, Recorder
@@ -152,13 +152,13 @@ def work():
     recorder.set_path(recorder_path)
 
     train_images, train_labels, test_images, test_labels = read_data()
-    test_data = DataLoader(test_images, test_labels, batch_size=128, shuffle=False)
+    test_data = DataLoader(test_images, test_labels, batch_size=256, shuffle=False)
 
     class_num = 10
     tmp = np.zeros((train_images.shape[0], class_num))
     tmp[np.arange(train_images.shape[0]), train_labels] = 1
     train_labels = tmp
-    train_data = DataLoader(train_images, train_labels, batch_size=16)
+    train_data = DataLoader(train_images, train_labels, batch_size=128)
 
     loss_function = nn.LossCollector(
         nn.CrossEntropySoftmax_Loss(),
