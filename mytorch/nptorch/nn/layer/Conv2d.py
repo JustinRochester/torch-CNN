@@ -1,4 +1,4 @@
-from mytorch.nptorch.GPU_np import np
+from ..GPU_np import np
 from ..base import *
 from ..functional.im2col import im2col
 from .Layer import Layer

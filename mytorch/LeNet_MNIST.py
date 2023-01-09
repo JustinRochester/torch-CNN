@@ -1,6 +1,6 @@
 import os
 from time import perf_counter as clock
-from mytorch import nptorch
+import nptorch
 from nptorch.GPU_np import np
 from nptorch import nn
 from nptorch.util import DataLoader, Recorder

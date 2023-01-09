@@ -1,5 +1,5 @@
 from queue import Queue
-from mytorch.nptorch.GPU_np import np
+from ..GPU_np import np
 
 
 class Tensor:

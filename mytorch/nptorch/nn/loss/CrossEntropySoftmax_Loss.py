@@ -1,6 +1,6 @@
 from ..base import *
 from ..functional import log, sum
-from mytorch.nptorch.GPU_np import np
+from ..GPU_np import np
 from .LossFunction import LossFunction
 
 eps = 1e-50

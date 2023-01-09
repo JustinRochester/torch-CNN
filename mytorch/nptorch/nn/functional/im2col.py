@@ -1,4 +1,4 @@
-from mytorch.nptorch.GPU_np import np
+from ..GPU_np import np
 from ..base import *
 
 
