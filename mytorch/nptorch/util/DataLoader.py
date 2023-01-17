@@ -1,4 +1,4 @@
-from ..GPU_np import np
+import numpy as np
 from ..nn.base import *
 
 

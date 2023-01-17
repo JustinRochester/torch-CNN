@@ -12,7 +12,7 @@ def class2onehot(x):
 
 
 def read_data():
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../../data/MNIST/")
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../../data/MNISTS/")
 
     kind = 'train'
     images_path = os.path.join(path, "%s-images-idx3-ubyte" % kind)

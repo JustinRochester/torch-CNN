@@ -14,7 +14,7 @@ class RMSProp(Optimizer):
                  second_moment_beta=0.999,
                  ):
         super().__init__(parameter_list, learning_rate, learning_rate_function)
-        self.second_beta = second_moment_beta
+        self.second_beta = np.array([float(second_moment_beta)], dtype=np.float64)
 
         self.second_momentum = []
         for e in self.parameter_list:

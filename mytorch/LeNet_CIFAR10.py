@@ -5,7 +5,7 @@ from nptorch.GPU_np import np
 from nptorch import nn
 from nptorch.util import DataLoader, Recorder
 from nptorch.nn import functional as F
-from load_MNIST import read_data
+from load_CIFAR10 import read_data
 from train import train_epoch, evaluate, get_data, train
 
 
@@ -15,31 +15,31 @@ class LeNet(nn.Module):
         self.bn0 = nn.BatchNorm2d(1)
 
         self.conv_seq1 = nn.Sequential(
-            nn.Conv2d(1, 6, (5, 5), padding=2, bias=False),
-            nn.BatchNorm2d(6),
+            nn.Conv2d(3, 32, (5, 5), padding=2, bias=False),
+            nn.BatchNorm2d(32),
             nn.ReLu(),
             nn.MaxPool2d((2, 2)),
         )
 
         self.conv_seq2 = nn.Sequential(
-            nn.Conv2d(6, 16, (5, 5), bias=False),
+            nn.Conv2d(32, 16, (5, 5), bias=False),
             nn.BatchNorm2d(16),
             nn.ReLu(),
             nn.MaxPool2d((2, 2)),
         )
 
         self.fc_seq1 = nn.Sequential(
-            nn.Linear(16 * 5 * 5, 120, bias=False),
+            nn.Linear(16 * 6 * 6, 120, bias=False),
             nn.BatchNorm1d(120),
-            nn.Dropout(),
             nn.ReLu(),
+            nn.Dropout(),
         )
 
         self.fc_seq2 = nn.Sequential(
             nn.Linear(120, 84, bias=False),
             nn.BatchNorm1d(84),
-            nn.Dropout(),
             nn.ReLu(),
+            nn.Dropout(),
         )
 
         self.fc_output = nn.Linear(84, 10)
@@ -75,19 +75,19 @@ def work(version=0, epoch_number=10):
     train_evaluate_data, test_evaluate_data, train_data = get_data(
         read_data=read_data,
         class_num=10,
-        train_batch=4096,
-        test_batch=8192,
+        train_batch=512,
+        test_batch=1024,
         train_data_to_test=True,
     )
 
     # set loss function
     loss_function = nn.LossCollector(
         nn.CrossEntropySoftmax_Loss(),
-        (nn.Regular_2_Loss(net.parameters()), 1e-3)
+        # (nn.Regular_2_Loss(net.parameters()), 1e-3)
     )
 
     # set optimizer
-    optimizer = nn.Adam(net.parameters(), learning_rate=1e-3)
+    optimizer = nn.Adam(net.parameters(), learning_rate=1e-4)
 
     # training
     train(
@@ -98,8 +98,8 @@ def work(version=0, epoch_number=10):
         recorder=recorder,
         test_data=(train_evaluate_data, test_evaluate_data),
         train_data_to_test=True,
-        version=10,
-        epoch_number=20,
+        version=0,
+        epoch_number=100,
     )
 
 

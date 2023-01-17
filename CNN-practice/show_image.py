@@ -8,7 +8,7 @@ def show_image(img):
     pil_img.show()
 
 
-data = mnist.read_image_file("data/MNIST/raw/train-images-idx3-ubyte")
+data = mnist.read_image_file("../data/MNISTS/raw/train-images-idx3-ubyte")
 print(data.shape)
 
 img = data[1]

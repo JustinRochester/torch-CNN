@@ -11,7 +11,7 @@ class Momentum_SGD(Optimizer):
                  first_moment_beta=0.9,
                  ):
         super().__init__(parameter_list, learning_rate, learning_rate_function)
-        self.first_beta = np.array([first_moment_beta])
+        self.first_beta = np.array([float(first_moment_beta)], dtype=np.float64)
 
         self.first_momentum = []
         for e in self.parameter_list:

@@ -15,8 +15,8 @@ class Adam(Optimizer):
                  second_moment_beta=0.999,
                  ):
         super().__init__(parameter_list, learning_rate, learning_rate_function)
-        self.first_beta = first_moment_beta
-        self.second_beta = second_moment_beta
+        self.first_beta = np.array([float(first_moment_beta)], dtype=np.float64)
+        self.second_beta = np.array([float(second_moment_beta)], dtype=np.float64)
         self.first_beta_pow = np.array([1.0], dtype=np.float64)
         self.second_beta_pow = np.array([1.0], dtype=np.float64)
 

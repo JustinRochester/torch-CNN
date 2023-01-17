@@ -1,5 +1,6 @@
 from queue import Queue
 from ..GPU_np import np
+import numpy as cpu_np
 
 
 class Tensor:
@@ -18,7 +19,9 @@ class Tensor:
         :param depend_on: It shows how this tensor is made by,
                     and the grad_fn hold by it will be used in backward propagation.
         """
-        if not isinstance(data, np.ndarray):
+        if isinstance(data, cpu_np.ndarray):
+            data = np.asarray(data, dtype=np.float64)
+        elif not isinstance(data, np.ndarray):
             if not isinstance(data, list):
                 data = [data]
             data = np.array(data, dtype=np.float64)

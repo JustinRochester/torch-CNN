@@ -24,7 +24,7 @@ class Conv2d(Layer):
         self.out_channels = out_channels
         filters_initializer = Initializer(
             initial_mu=0,
-            initial_std=np.sqrt(2 / in_channels),
+            initial_std=np.sqrt(2 / (in_channels * kernel_size[0] * kernel_size[1])),
         )
         self.filters = Parameter(
             data=filters_initializer(shape=(out_channels, in_channels) + kernel_size),
@@ -37,7 +37,7 @@ class Conv2d(Layer):
             return
         bias_initializer = Initializer(
             initial_mu=0,
-            initial_std=np.sqrt(2 / in_channels),
+            initial_std=np.sqrt(2 / (in_channels * kernel_size[0] * kernel_size[1])),
         )
         self.bias = Parameter(
             data=bias_initializer(shape=(1, out_channels)),

@@ -6,7 +6,7 @@ from LeNet import LeNet5
 from torch import optim
 from tqdm import trange
 
-data_path = 'CNN-practice/data/MNIST'
+data_path = 'data/MNIST'
 train = datasets.MNIST(data_path, download=True, train=True)
 test = datasets.MNIST(data_path, download=True, train=False)
 

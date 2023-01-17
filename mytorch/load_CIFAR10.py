@@ -1,4 +1,4 @@
-from nptorch.GPU_np import np
+import numpy as np
 import os
 
 
