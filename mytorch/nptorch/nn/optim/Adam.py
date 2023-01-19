@@ -44,7 +44,7 @@ class Adam(Optimizer):
 
             first_unbias = first_momentum / (1 - self.first_beta_pow)
             second_unbias = second_momentum / (1 - self.second_beta_pow)
-            pace = self.learning_rate * first_unbias / np.sqrt(second_unbias + eps)
+            pace = self.learning_rate * first_unbias / (np.sqrt(second_unbias) + eps)
             data -= pace
 
     def get_data_list(self):

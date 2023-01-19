@@ -8,7 +8,7 @@ eps = 1e-50
 
 def softmax_cross_entropy(predict: Tensor, labels: Tensor):
     ret = predict.data
-    ret -= np.max(ret, axis=1, keepdims=True)
+    ret = ret - np.max(ret, axis=1, keepdims=True)
     ret = np.exp(ret)
     ret /= np.sum(ret, axis=1, keepdims=True)
 

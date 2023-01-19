@@ -28,7 +28,9 @@ optimizer = optim.Adam(model.parameters())
 criterion = nn.CrossEntropyLoss()
 
 n = y_train.shape[0]
-epoch_number = 20
+epoch_number = 100
+max_test_acc_value = 0
+max_test_acc_turn = -1
 for epoch in trange(epoch_number):
     count = 0
     for X, y in train_loader:
@@ -50,4 +52,10 @@ for epoch in trange(epoch_number):
             acc_test += (pred.argmax(dim=1) == y).float().sum().item()
         acc_train /= n
         acc_test /= n
-        print(epoch, acc_train, acc_test)
+        acc_train *= 100
+        acc_test *= 100
+        print('finished epoch {} / {}, train accuracy = {}%, test accuracy = {}%'.format(epoch+1, epoch_number, acc_train, acc_test))
+        if acc_test > max_test_acc_value:
+            max_test_acc_value = acc_test
+            max_test_acc_turn = epoch + 1
+print('finished training, got max test accuracy = {}% in turn {} / {}'.format(max_test_acc_value, max_test_acc_turn, epoch_number))

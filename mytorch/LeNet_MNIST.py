@@ -98,8 +98,8 @@ def work(version=0, epoch_number=10):
         recorder=recorder,
         test_data=(train_evaluate_data, test_evaluate_data),
         train_data_to_test=True,
-        version=10,
-        epoch_number=20,
+        version=0,
+        epoch_number=10,
     )
 
 

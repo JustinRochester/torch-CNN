@@ -9,13 +9,13 @@ from load_CIFAR10 import read_data
 from train import train_epoch, evaluate, get_data, train
 
 
-bias_need = False
+bias_need = True
 
 
 class VGGNet(nn.Module):
     def __init__(self):
         super().__init__()
-        self.bn0 = nn.BatchNorm2d(3)
+        # self.bn0 = nn.BatchNorm2d(3)
 
         self.conv_seq1 = nn.Sequential(
             nn.Conv2d(3, 64, (3, 3), padding=1, bias=bias_need),
@@ -95,7 +95,8 @@ class VGGNet(nn.Module):
 
     def forward(self, x: nptorch.Tensor):
         n = x.shape[0]
-        x = self.bn0(x)
+        x /= 255.0
+        # x = self.bn0(x)
         x = self.conv_seq1(x)
         x = self.conv_seq2(x)
         x = self.conv_seq3(x)
@@ -109,7 +110,7 @@ class VGGNet(nn.Module):
         return x
 
 
-def work(version=0, epoch_number=100):
+def work(version=0, epoch_number=10):
     # set recorder
     recorder = Recorder()
     recorder_path = os.path.join(
@@ -136,14 +137,13 @@ def work(version=0, epoch_number=100):
     # set loss function
     loss_function = nn.LossCollector(
         nn.CrossEntropySoftmax_Loss(),
-        (nn.Regular_2_Loss(), 1e-4)
+        # (nn.Regular_2_Loss(), 1e-4)
     )
 
     # set optimizer
     optimizer = nn.Adam(
         parameter_list=net.parameters(),
         learning_rate=1e-4,
-        learning_rate_function=(lambda x: x*0.99)
     )
 
     # training
